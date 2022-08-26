@@ -20,13 +20,19 @@ using namespace std;
 
 void PC_bsf_SetInitParameter(PT_bsf_parameter_T* parameter) {
 	for (int j = 0; j < PD_n; j++) // Generating initial approximation
-		parameter->x[j] = PD_basePoint[j];
+		parameter->x[j] = PD_u[j];
 };
 
 void PC_bsf_Init(bool* success) {
 	PD_state = PP_STATE_START;
-
 	//
+
+	if (PP_MODE_BLOCK_HCV_VARIABLE && PP_MODE_USE_LCV_VARIABLE) {
+		cout << "Modes PP_MODE_BLOCK_HCV_VARIABLE & PP_MODE_USE_LCV_VARIABLE are incompatible!\n";
+		*success = false;
+		return;
+	}
+
 	*success = LoadMatrixFormat();
 	if (*success == false)
 		return;
@@ -58,7 +64,7 @@ void PC_bsf_Init(bool* success) {
 	MakeObjVector(PD_c, PD_objVector);
 	ObjUnitVector(PD_unitObjVector);
 	Vector_MultiplyByNumber(PD_unitObjVector, PP_DISTANCE_TO_APEX, PD_direction);
-	Vector_Addition(PD_basePoint, PD_direction, PD_apexPoint);
+	Vector_Addition(PD_u, PD_direction, PD_apexPoint);
 }
 
 void PC_bsf_SetListSize(int* listSize) {
@@ -157,7 +163,7 @@ void PC_bsf_ProcessResults(
 	if (PD_pointIn)
 		return;
 
-	PT_vector_T relaxationVector;
+	static PT_vector_T relaxationVector;
 	for (int j = 0; j < PD_n; j++)
 		relaxationVector[j] = reduceResult->projection[j] / (double)(reduceResult->nonZeroCounter + 1);
 	Vector_PlusEquals(parameter->x, relaxationVector);
@@ -215,13 +221,24 @@ void PC_bsf_JobDispatcher(
 	bool goOn, repeat;
 
 	static int detDirSwitch;
-	static int fvI;
-#define START_FV_SEARCH	0
-#define POSITIVE_ANCHOR_FV	1
-#define NEGATIVE_ANCHOR_FV	2
+	static int lcvI;
+	static double c_lcvI;
+	static double new_c_lcv;
+	static int max_lcvI;
+	static double max_objF_lcv;
+	static double max_new_c_lcv;
+	static double objF_lcv;
+
+#define BEGIN_LCV_UTILIZATION	0
+#define POSITIVE_LCV			1
+#define NEGATIVE_LCV			2
+#define POSITIVE_ZCV			3
+#define NEGATIVE_ZCV			4
+#define END_LCV_UTILIZATION		5
 
 	switch (PD_state) {
 	case PP_STATE_START://-------------------------- Start -----------------------------
+		assert(!PointInPolytope_s(PD_apexPoint));
 		// Preparations for finding feasible point
 		Vector_Copy(PD_apexPoint, parameter->x);
 		*job = PP_JOB_PSEUDOPOJECTION;
@@ -234,106 +251,286 @@ void PC_bsf_JobDispatcher(
 		if (!PD_pointIn)
 			return;
 
-		if (PD_utilizeLowCostVariables) {
-
-			switch (detDirSwitch) {
-			case START_FV_SEARCH:
-
-				if (PD_firstLcvI == INT_MAX) {
-					cout << "There are no low cost variables!\n";
-					*exit = true;
-					return;
-				}
-
-				fvI = PD_firstLcvI;
-				PD_c[PD_objI[fvI]] = fabs(PD_c[PD_objI[0]]);
-				MakeObjVector(PD_c, PD_objVector);
-				PD_c[PD_objI[fvI]] = 0;
-				Vector_Copy(PD_basePoint, parameter->x);
-				Vector_PlusEquals(parameter->x, PD_objVector);
-				detDirSwitch = POSITIVE_ANCHOR_FV;
-				return;
-			case POSITIVE_ANCHOR_FV:
-#ifdef PP_DEBUG
-				if (fvI == PD_firstLcvI)
-					cout << "---------------- Low cost variables with '+' ----------------\n";
-				else
-					if (fvI == PD_firstZcvI)
-						cout << "---------------- Zero cost variables with '+' ----------------\n";
-				cout << "#" << fvI << "|" << PD_objI[fvI] << ":\t";
-				for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++)
-					cout << setw(PP_SETW) << parameter->x[PD_objI[j]];
-				if (PP_OUTPUT_LIMIT < PD_n) cout << " ...";
-				cout << "\tF(t) = " << setw(PP_SETW) << ObjF(parameter->x);
-				cout << endl;
-#endif // PP_DEBUG
-
-				if (ObjF(parameter->x) > PD_baseObjValue + PP_EPS_ZERO_DIR) {
-					cout << "-----------------------------------\n";
-					break;
-				}
-
-				fvI++;
-				if (fvI < PD_n) {
-					PD_c[PD_objI[fvI]] = fabs(PD_c[PD_objI[0]]);
-					MakeObjVector(PD_c, PD_objVector);
-					PD_c[PD_objI[fvI]] = 0;
-					Vector_Copy(PD_basePoint, parameter->x);
-					Vector_PlusEquals(parameter->x, PD_objVector);
-					return;
-				}
-
-				fvI = PD_firstLcvI;
-				PD_c[PD_objI[fvI]] = -fabs(PD_c[PD_objI[0]]);
-				MakeObjVector(PD_c, PD_objVector);
-				PD_c[PD_objI[fvI]] = 0;
-				Vector_Copy(PD_basePoint, parameter->x);
-				Vector_PlusEquals(parameter->x, PD_objVector);
-				detDirSwitch = NEGATIVE_ANCHOR_FV;
-				return;
-			case NEGATIVE_ANCHOR_FV:
-#ifdef PP_DEBUG
-				if (fvI == PD_firstLcvI)
-					cout << "---------------- Low cost variables with '-' ----------------\n";
-				else
-					if (fvI == PD_firstZcvI)
-						cout << "---------------- Zero cost variables with '-' ----------------\n";
-				cout << "#" << fvI << "|" << PD_objI[fvI] << ":\t";
-				for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++)
-					cout << setw(PP_SETW) << parameter->x[PD_objI[j]];
-				if (PP_OUTPUT_LIMIT < PD_n) cout << " ...";
-				cout << "\tF(t) = " << setw(PP_SETW) << ObjF(parameter->x);
-				cout << endl;
-#endif // PP_DEBUG
-
-				if (ObjF(parameter->x) > PD_baseObjValue + PP_EPS_ZERO_DIR)
-					break;
-
-				fvI++;
-				if (fvI < PD_n) {
-					PD_c[PD_objI[fvI]] = -fabs(PD_c[PD_objI[0]]);
-					MakeObjVector(PD_c, PD_objVector);
-					PD_c[PD_objI[fvI]] = 0;
-					Vector_Copy(PD_basePoint, parameter->x);
-					Vector_PlusEquals(parameter->x, PD_objVector);
-					return;
-				}
-
-				cout << "No low cost variable increases objective function!\n";
-				cout << "May be, you should decrease  PP_OBJECTIVE_VECTOR_LENGTH.\n";
+		if (PP_MODE_USE_LCV_VARIABLE) {
+			if (PD_firstLcvI == INT_MAX) {
+				cout << "Error: The PP_MODE_USE_LCV_VARIABLE=true, but there are no low cost variables!\n";
 				*exit = true;
 				return;
+			}
 
+			switch (detDirSwitch) {
+			case BEGIN_LCV_UTILIZATION:
+				max_lcvI = 0;
+				max_objF_lcv = -INFINITY;
+
+				/*debug0*
+				#ifdef PP_DEBUG
+				cout << "w =\t\t";
+				for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++)
+					cout << setw(PP_SETW) << parameter->x[PD_objI[j]];
+				if (PP_OUTPUT_LIMIT < PD_n) cout << " ...";
+				cout << "\tF(t) = " << setw(PP_SETW) << ObjF(parameter->x) << endl;
+#endif
+				/*end debug*/
+
+				PD_objF_w = ObjF(parameter->x);
+				lcvI = PD_firstLcvI;
+				c_lcvI = PD_c[PD_objI[lcvI]];
+				if (PD_firstLcvI < (PD_firstZcvI == INT_MAX ? PD_n : PD_firstZcvI)) {
+					PD_c[PD_objI[lcvI]] = fabs(PD_c[PD_objI[lcvI]]) + fabs(PD_c[PD_objI[PD_firstLcvI - 1]] / 2);
+					new_c_lcv = PD_c[PD_objI[lcvI]];
+					MakeObjVector(PD_c, PD_objVector);
+					detDirSwitch = POSITIVE_LCV;
+				}
+				else {
+					PD_c[PD_objI[lcvI]] = fabs(PD_c[PD_objI[PD_firstLcvI - 1]] / 2);
+					new_c_lcv = PD_c[PD_objI[lcvI]];
+					MakeObjVector(PD_c, PD_objVector);
+					detDirSwitch = POSITIVE_ZCV;
+				}
+				PD_c[PD_objI[lcvI]] = c_lcvI;
+				Vector_Copy(PD_u, parameter->x);
+				Vector_PlusEquals(parameter->x, PD_objVector);
+				return;
+			case POSITIVE_LCV:
+				/*debug0*
+#ifdef PP_DEBUG
+				if (lcvI == PD_firstLcvI)
+					cout << "---------------- Nonzero low cost variables with '+' ----------------\n";
+				cout << "#" << lcvI << "|" << PD_objI[lcvI] << ":\t";
+				for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++)
+					cout << setw(PP_SETW) << parameter->x[PD_objI[j]];
+				if (PP_OUTPUT_LIMIT < PD_n) cout << " ...";
+				cout << "\tF(t) = " << setw(PP_SETW) << ObjF(parameter->x) << endl;
+#endif // PP_DEBUG
+				/*end debug*/
+
+				objF_lcv = ObjF(parameter->x);
+
+				if (objF_lcv > PD_objF_w + PP_EPS_ZERO_DIR
+					&& objF_lcv > PD_objF_u + PP_EPS_ZERO_DIR
+					&& objF_lcv > max_objF_lcv)
+				{
+					max_objF_lcv = objF_lcv;
+					max_lcvI = lcvI;
+					max_new_c_lcv = new_c_lcv;
+				}
+
+				lcvI++;
+				c_lcvI = PD_c[PD_objI[lcvI]];
+				if (lcvI < (PD_firstZcvI == INT_MAX ? PD_n : PD_firstZcvI)) {
+					PD_c[PD_objI[lcvI]] = fabs(PD_c[PD_objI[lcvI]]) + fabs(PD_c[PD_objI[PD_firstLcvI - 1]] / 2);
+					new_c_lcv = PD_c[PD_objI[lcvI]];
+					MakeObjVector(PD_c, PD_objVector);
+					PD_c[PD_objI[lcvI]] = c_lcvI;
+					Vector_Copy(PD_u, parameter->x);
+					Vector_PlusEquals(parameter->x, PD_objVector);
+					return;
+				}
+
+				lcvI = PD_firstLcvI;
+				c_lcvI = PD_c[PD_objI[lcvI]];
+				PD_c[PD_objI[lcvI]] = -(fabs(PD_c[PD_objI[lcvI]]) + fabs(PD_c[PD_objI[PD_firstLcvI - 1]] / 2));
+				new_c_lcv = PD_c[PD_objI[lcvI]];
+				MakeObjVector(PD_c, PD_objVector);
+				PD_c[PD_objI[lcvI]] = c_lcvI;
+				Vector_Copy(PD_u, parameter->x);
+				Vector_PlusEquals(parameter->x, PD_objVector);
+				detDirSwitch = NEGATIVE_LCV;
+				return;
+
+			case NEGATIVE_LCV:
+				/*debug0*
+#ifdef PP_DEBUG
+				if (lcvI == PD_firstLcvI)
+					cout << "---------------- Nonzero low cost variables with '-' ----------------\n";
+				cout << "#" << lcvI << "|" << PD_objI[lcvI] << ":\t";
+				for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++)
+					cout << setw(PP_SETW) << parameter->x[PD_objI[j]];
+				if (PP_OUTPUT_LIMIT < PD_n) cout << " ...";
+				cout << "\tF(t) = " << setw(PP_SETW) << ObjF(parameter->x) << endl;
+#endif // PP_DEBUG
+				/*end debug*/
+
+				objF_lcv = ObjF(parameter->x);
+
+				if (objF_lcv > PD_objF_w + PP_EPS_ZERO_DIR
+					&& objF_lcv > PD_objF_u + PP_EPS_ZERO_DIR
+					&& objF_lcv > max_objF_lcv)
+				{
+					max_objF_lcv = objF_lcv;
+					max_lcvI = lcvI;
+					max_new_c_lcv = new_c_lcv;
+				}
+
+				lcvI++;
+				c_lcvI = PD_c[PD_objI[lcvI]];
+				if (lcvI < (PD_firstZcvI == INT_MAX ? PD_n : PD_firstZcvI)) {
+					PD_c[PD_objI[lcvI]] = -(fabs(PD_c[PD_objI[lcvI]]) + fabs(PD_c[PD_objI[PD_firstLcvI - 1]] / 2));
+					new_c_lcv = PD_c[PD_objI[lcvI]];
+					MakeObjVector(PD_c, PD_objVector);
+					PD_c[PD_objI[lcvI]] = c_lcvI;
+					Vector_Copy(PD_u, parameter->x);
+					Vector_PlusEquals(parameter->x, PD_objVector);
+					return;
+				}
+
+				if (PD_firstZcvI != INT_MAX) {
+					lcvI = PD_firstZcvI;
+					c_lcvI = PD_c[PD_objI[lcvI]];
+					PD_c[PD_objI[lcvI]] = fabs(PD_c[PD_objI[PD_firstLcvI - 1]] / 2);
+					new_c_lcv = PD_c[PD_objI[lcvI]];
+					MakeObjVector(PD_c, PD_objVector);
+					PD_c[PD_objI[lcvI]] = c_lcvI;
+					Vector_Copy(PD_u, parameter->x);
+					Vector_PlusEquals(parameter->x, PD_objVector);
+					detDirSwitch = POSITIVE_ZCV;
+					return;
+				}
+				else
+				{
+					if (max_lcvI > 0) {
+						c_lcvI = PD_c[PD_objI[max_lcvI]];
+						PD_c[PD_objI[max_lcvI]] = max_new_c_lcv;
+						MakeObjVector(PD_c, PD_objVector);
+						PD_c[PD_objI[max_lcvI]] = c_lcvI;
+					}
+					else
+						MakeObjVector(PD_c, PD_objVector);
+
+					Vector_Copy(PD_u, parameter->x);
+					Vector_PlusEquals(parameter->x, PD_objVector);
+					detDirSwitch = END_LCV_UTILIZATION;
+					return;
+				}
+			case POSITIVE_ZCV:
+				/*debug0*
+#ifdef PP_DEBUG
+				if (lcvI == PD_firstZcvI)
+					cout << "---------------- Zero cost variables with '+' ----------------\n";
+				cout << "#" << lcvI << "|" << PD_objI[lcvI] << ":\t";
+				for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++)
+					cout << setw(PP_SETW) << parameter->x[PD_objI[j]];
+				if (PP_OUTPUT_LIMIT < PD_n) cout << " ...";
+				cout << "\tF(t) = " << setw(PP_SETW) << ObjF(parameter->x) << endl;
+#endif // PP_DEBUG
+				/*end debug*/
+
+				objF_lcv = ObjF(parameter->x);
+
+				if (objF_lcv > PD_objF_w + PP_EPS_ZERO_DIR
+					&& objF_lcv > PD_objF_u + PP_EPS_ZERO_DIR
+					&& objF_lcv > max_objF_lcv)
+				{
+					max_objF_lcv = objF_lcv;
+					max_lcvI = lcvI;
+					max_new_c_lcv = new_c_lcv;
+				}
+
+				lcvI++;
+				if (lcvI < PD_n) {
+					c_lcvI = PD_c[PD_objI[lcvI]];
+					PD_c[PD_objI[lcvI]] = fabs(PD_c[PD_objI[PD_firstLcvI - 1]] / 2);
+					new_c_lcv = PD_c[PD_objI[lcvI]];
+					if (lcvI < PD_firstZcvI)
+						PD_c[PD_objI[lcvI]] += c_lcvI;
+					MakeObjVector(PD_c, PD_objVector);
+					PD_c[PD_objI[lcvI]] = c_lcvI;
+					Vector_Copy(PD_u, parameter->x);
+					Vector_PlusEquals(parameter->x, PD_objVector);
+					return;
+				}
+
+				lcvI = PD_firstZcvI;
+				c_lcvI = PD_c[PD_objI[lcvI]];
+				PD_c[PD_objI[lcvI]] = -fabs(PD_c[PD_objI[PD_firstLcvI - 1]] / 2);
+				new_c_lcv = PD_c[PD_objI[lcvI]];
+				MakeObjVector(PD_c, PD_objVector);
+				PD_c[PD_objI[lcvI]] = c_lcvI;
+				Vector_Copy(PD_u, parameter->x);
+				Vector_PlusEquals(parameter->x, PD_objVector);
+				detDirSwitch = NEGATIVE_ZCV;
+				return;
+			case NEGATIVE_ZCV:
+				/*debug0*
+#ifdef PP_DEBUG
+				if (lcvI == PD_firstZcvI)
+					cout << "---------------- Zero cost variables with '-' ----------------\n";
+				cout << "#" << lcvI << "|" << PD_objI[lcvI] << ":\t";
+				for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++)
+					cout << setw(PP_SETW) << parameter->x[PD_objI[j]];
+				if (PP_OUTPUT_LIMIT < PD_n) cout << " ...";
+				cout << "\tF(t) = " << setw(PP_SETW) << ObjF(parameter->x) << endl;
+#endif // PP_DEBUG
+				/*end debug*/
+
+				objF_lcv = ObjF(parameter->x);
+				if (objF_lcv > PD_objF_w + PP_EPS_ZERO_DIR
+					&& objF_lcv > PD_objF_u + PP_EPS_ZERO_DIR
+					&& objF_lcv > max_objF_lcv)
+				{
+					max_objF_lcv = objF_lcv;
+					max_lcvI = lcvI;
+					max_new_c_lcv = new_c_lcv;
+				}
+
+				lcvI++;
+				if (lcvI < PD_n) {
+					c_lcvI = PD_c[PD_objI[lcvI]];
+					PD_c[PD_objI[lcvI]] = -fabs(PD_c[PD_objI[PD_firstLcvI - 1]] / 2);
+					new_c_lcv = PD_c[PD_objI[lcvI]];
+					MakeObjVector(PD_c, PD_objVector);
+					PD_c[PD_objI[lcvI]] = c_lcvI;
+					Vector_Copy(PD_u, parameter->x);
+					Vector_PlusEquals(parameter->x, PD_objVector);
+					return;
+				}
+
+				if (max_lcvI > 0) {
+					c_lcvI = PD_c[PD_objI[max_lcvI]];
+					PD_c[PD_objI[max_lcvI]] = max_new_c_lcv;
+					MakeObjVector(PD_c, PD_objVector);
+					PD_c[PD_objI[max_lcvI]] = c_lcvI;
+				}
+				else
+					MakeObjVector(PD_c, PD_objVector);
+
+				Vector_Copy(PD_u, parameter->x);
+				Vector_PlusEquals(parameter->x, PD_objVector);
+				detDirSwitch = END_LCV_UTILIZATION;
+				return;
+
+			case END_LCV_UTILIZATION:
+				/*debug2*/
+#ifdef PP_DEBUG
+				cout << "-----------------------------------------------------\n";
+				if (max_lcvI > 0) {
+					cout << "Optimal LCV is found with native c = "
+						<< (PD_c[PD_objI[max_lcvI]] == 0 ? 0 : PD_c[PD_objI[max_lcvI]])
+						<< " and new c = " << max_new_c_lcv << " :\n";
+					cout << "#" << max_lcvI << "|" << PD_objI[max_lcvI] << ":\t";
+					for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++)
+						cout << setw(PP_SETW) << parameter->x[PD_objI[j]];
+					if (PP_OUTPUT_LIMIT < PD_n) cout << " ...";
+					cout << "\tF(t) = " << setw(PP_SETW) << ObjF(parameter->x) << endl;
+				}
+				else {
+					cout << "Optimal LCV not found!\n";
+				}
+				MakeObjVector(PD_c, PD_objVector);
+				cout << "-----------------------------------------------------\n";
+#endif // PP_DEBUG
+				/*end debug*/
+				break;
 			default:
 				break;
 			}
 		}
 
-		PD_utilizeLowCostVariables = false;
-		detDirSwitch = START_FV_SEARCH;
+		detDirSwitch = BEGIN_LCV_UTILIZATION;
 
-/*debug**/
-		#ifdef PP_DEBUG
+		/*debug0*
+#ifdef PP_DEBUG
 		cout << "w =\t\t";
 		for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++)
 			cout << setw(PP_SETW) << parameter->x[PD_objI[j]];
@@ -341,7 +538,7 @@ void PC_bsf_JobDispatcher(
 		cout << "\tF(t) = " << setw(PP_SETW) << ObjF(parameter->x);
 		cout << endl;
 #endif
-/*end debug*/
+		/*end debug*/
 
 		DetermineDirection(parameter, exit, &repeat);
 
@@ -350,7 +547,8 @@ void PC_bsf_JobDispatcher(
 
 		if (repeat) {
 			// Preparations for determining direction
-			Vector_Copy(PD_basePoint, parameter->x);
+			Vector_Copy(PD_u, parameter->x);
+			PD_objF_u = ObjF(PD_u);
 			Vector_PlusEquals(parameter->x, PD_objVector);
 			PD_numDetDir = 0;
 			*job = PP_JOB_PSEUDOPOJECTION;
@@ -362,14 +560,14 @@ void PC_bsf_JobDispatcher(
 		}
 
 		/*debug*/
-		//SavePoint(PD_basePoint, x0_File, t);
+		//SavePoint(PD_u, x0_File, t);
 		/*end debug*/
 
 		// Preparations for motion
 		PD_shiftLength = PP_START_SHIFT_LENGTH;
 		PD_numShiftsSameLength = 0;
-		Shift(PD_basePoint, PD_direction, PD_shiftLength, parameter->x);
-/*debug**/
+		Shift(PD_u, PD_direction, PD_shiftLength, parameter->x);
+		/*debug0*
 #ifdef PP_DEBUG
 		cout << "--------- Moving along surface ------------\n";
 		cout << "Sift = " << setw(PP_SETW) << PD_shiftLength << "\tt = ";
@@ -385,14 +583,14 @@ void PC_bsf_JobDispatcher(
 		PD_state = MOVING_ALONG_SURFACE;
 		break;
 	case MOVING_ALONG_SURFACE://-------------------------- Moving along surface -----------------------------
-		MovingOnSurface(ptr_unitVectorToSurface, PD_basePoint, parameter->x, &goOn);
+		MovingOnSurface(ptr_unitVectorToSurface, PD_u, parameter->x, &goOn);
 		if (goOn)
 			return;
 
 		// Preparations for landing
 		*job = PP_JOB_PSEUDOPOJECTION;
 		PD_state = PP_STATE_LANDING;
-/*debug**/
+		/*debug0*
 #ifdef PP_DEBUG
 		cout << "--------- Landing ------------\n";
 #endif //
@@ -402,13 +600,14 @@ void PC_bsf_JobDispatcher(
 		if (!PD_pointIn)
 			return;
 
-		Vector_Copy(parameter->x, PD_basePoint);
+		Vector_Copy(parameter->x, PD_u);
+		PD_objF_u = ObjF(PD_u);
 
-		//WriteTrace(PD_basePoint);
+		//WriteTrace(PD_u);
 
-		/*debug*/
+		/*debug4*/
 		if (BSF_sv_iterCounter % PP_BSF_TRACE_COUNT == 0)
-			SavePoint(PD_basePoint, x0_File, t);
+			SavePoint(PD_u, x0_File, t);
 		/*end debug*/
 
 #ifdef PP_DEBUG
@@ -416,9 +615,9 @@ void PC_bsf_JobDispatcher(
 			cout << "Iter # " << BSF_sv_iterCounter << ". Elapsed time: " << round(t) << endl;
 		cout << "u =\t\t";
 		for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++)
-			cout << setw(PP_SETW) << PD_basePoint[PD_objI[j]];
+			cout << setw(PP_SETW) << PD_u[PD_objI[j]];
 		if (PP_OUTPUT_LIMIT < PD_n) cout << " ...";
-		cout << "\tF(t) = " << setw(PP_SETW) << ObjF(PD_basePoint);
+		cout << "\tF(t) = " << setw(PP_SETW) << PD_objF_u;
 		cout << endl;
 		}
 #endif
@@ -436,7 +635,7 @@ void PC_bsf_JobDispatcher(
 		*job = PP_JOB_PSEUDOPOJECTION;
 		PD_state = PP_STATE_DETERMINE_DIRECTION;
 		PD_numDetDir = 0;
-/*debug**/
+		/*debug0*
 #ifdef PP_DEBUG
 		cout << "--------- Determining direction ------------\n";
 #endif
@@ -444,14 +643,21 @@ void PC_bsf_JobDispatcher(
 		break;
 	case PP_STATE_FIND_FEASIBLE_POINT://-------------------------- Finding feasible point -----------------------------
 		if (!PD_pointIn) {
-			/*debug*
+			/*debug3*/
 			if (BSF_sv_iterCounter % PP_BSF_TRACE_COUNT == 0)
 				SavePoint(parameter->x, x0_File, t);
 			/*end debug*/
 			return;
 		}
+	/*debug2*/
+	cout << "\tF(t) = " << setw(PP_SETW) << ObjF(parameter->x) << endl;
+	//for (int j = 0; j < PD_n; j++)
+		//cout << parameter->x[j] << endl;
+	*exit = true;
+	return;
+	/*end debug*/
 
-		/*debug*/
+	/*debug*/
 		//SavePoint(parameter->x, x0_File, t);
 		/*end debug*/
 
@@ -461,19 +667,20 @@ void PC_bsf_JobDispatcher(
 		for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++)
 			cout << setw(PP_SETW) << parameter->x[PD_objI[j]];
 		if (PP_OUTPUT_LIMIT < PD_n) cout << " ...";
-		cout << "\tF(t) = " << setw(PP_SETW) << ObjF(parameter->x);
-		cout << endl;
-#endif // PP_DEBUG /**/
+		cout << "\tF(t) = " << setw(PP_SETW) << ObjF(parameter->x) << endl;
+#endif
 
-		Vector_Copy(parameter->x, PD_basePoint);
+		Vector_Copy(parameter->x, PD_u);
+		PD_objF_u = ObjF(PD_u);
 
 		// Preparations for determining direction
 		Vector_PlusEquals(parameter->x, PD_objVector);
+		assert(!PointInPolytope_s(parameter->x));
 
 		*job = PP_JOB_PSEUDOPOJECTION;
 		PD_state = PP_STATE_DETERMINE_DIRECTION;
 		PD_numDetDir = 0;
-/*debug**/
+		/*debug0*
 #ifdef PP_DEBUG
 		cout << "--------- Determine Direction ------------\n";
 #endif
@@ -517,10 +724,11 @@ void PC_bsf_ParametersOutput(PT_bsf_parameter_T parameter) {
 	cout << "Gap Max:\t\t" << PP_GAP << endl;
 	cout << "Obj Vector Length:\t" << PP_OBJECTIVE_VECTOR_LENGTH << endl;
 	cout << "Start Shift Lengt:\t" << PP_START_SHIFT_LENGTH << endl;
-	cout << "Blocking obj var:\t" << (PP_BLOCK_OBJ_VARIABLE ? "true" : "false") << endl;
+	cout << "Blocking obj var:\t" << (PP_MODE_BLOCK_HCV_VARIABLE ? "true" : "false") << endl;
+	cout << "Use low cost vars:\t" << (PP_MODE_USE_LCV_VARIABLE ? "true" : "false") << endl;
 	cout << "--------------- Statisics ---------------\n";
-	cout << "Number of objective variables:\t" << (PD_firstLcvI == INT_MAX ? PD_n : PD_firstLcvI) << endl;
-	cout << "Number of low-cost variables:\t" << (PD_firstLcvI == INT_MAX ? 0 : (PD_firstZcvI == INT_MAX ? 0 : PD_firstZcvI) - PD_firstLcvI) << endl;
+	cout << "Number of high-cost variables:\t" << (PD_firstLcvI == INT_MAX ? PD_n : PD_firstLcvI) << endl;
+	cout << "Number of low-cost variables:\t" << (PD_firstLcvI == INT_MAX ? 0 : (PD_firstZcvI == INT_MAX ? PD_n : PD_firstZcvI) - PD_firstLcvI) << endl;
 	cout << "Number of zero-cost variables:\t" << (PD_firstZcvI == INT_MAX ? 0 : PD_n - PD_firstZcvI) << endl;
 	cout << "Problem Scale:\t\t\t" << ProblemScale() << endl;
 	cout << "--------------- Data ---------------\n";
@@ -540,10 +748,10 @@ void PC_bsf_ParametersOutput(PT_bsf_parameter_T parameter) {
 		cout << " ...";
 	cout << endl;
 	cout << "Start point:\t";
-	for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++) cout << setw(PP_SETW) << PD_basePoint[PD_objI[j]];
+	for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++) cout << setw(PP_SETW) << PD_u[PD_objI[j]];
 	if (PP_OUTPUT_LIMIT < PD_n)
 		cout << " ...";
-	cout << "\tF(x) = " << ObjF(PD_basePoint);
+	cout << "\tF(x) = " << ObjF(PD_u);
 	cout << endl;
 	cout << "Apex point:\t";
 	for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++) 
@@ -577,10 +785,6 @@ void PC_bsf_IterOutput(PT_bsf_reduceElem_T* reduceResult, int reduceCounter, PT_
 	for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++) cout << setw(PP_SETW) << parameter.x[PD_objI[j]];
 	if (PP_OUTPUT_LIMIT < PD_n) cout << "	...";
 	cout << "\tF(x)= " << setw(PP_SETW) << ObjF(parameter.x) << endl;
-	/*debug*
-	const char* x0_File = PD_MTX_File_x0.c_str();
-	SavePoint(parameter.x, x0_File, round(elapsedTime));
-	/*end debug*/
 }
 
 // 1. Movement on Polytope
@@ -589,9 +793,9 @@ void PC_bsf_IterOutput_1(PT_bsf_reduceElem_T_1* reduceResult, int reduceCounter,
 {
 	/*cout << "------------------ 1. Movement on Polytope. Iter # " << BSF_sv_iterCounter << " ------------------" << endl;
 	cout << "Elapsed time: " << round(elapsedTime) << endl;
-	cout << "PD_basePoint:";
+	cout << "PD_u:";
 	for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++)
-		cout << setw(PP_SETW) << PD_basePoint[j];
+		cout << setw(PP_SETW) << PD_u[j];
 	if (PP_OUTPUT_LIMIT < PD_n) cout << "	...";
 	cout << endl;
 	cout << "PD_direction:";
@@ -1114,7 +1318,7 @@ static bool LoadMatrixFormat() {
 	if (stream == NULL) {
 		// Generating Coordinates of starting point
 		for (int j = 0; j < PD_n; j++)
-			PD_basePoint[j] = 0;
+			PD_u[j] = 0;
 		return true;
 	}
 
@@ -1145,7 +1349,7 @@ static bool LoadMatrixFormat() {
 				<< "Unexpected end of file" << endl;
 			return false;
 		}
-		PD_basePoint[j] = strtod(str, &chr);
+		PD_u[j] = strtod(str, &chr);
 	}
 	fclose(stream);
 	return true;
@@ -1401,25 +1605,24 @@ inline void MakeObjVector(PT_vector_T c, PT_vector_T objVector) { // Calculating
 }
 
 inline void ProblemOutput(double elapsedTime) {
-	PT_float_T F_basePoint = ObjF(PD_basePoint);
 	cout << "=============================================" << endl;
 	cout << "Elapsed time: " << elapsedTime << endl;
 	cout << "Iterations: " << BSF_sv_iterCounter << endl;
-	cout << "Optimal objective value: " << setw(PP_SETW) << F_basePoint << endl;
+	cout << "Optimal objective value: " << setw(PP_SETW) << PD_objF_u << endl;
 	cout << "Exact objective value:   " << setw(PP_SETW) << PP_EXACT_OBJ_VALUE << endl;
-	cout << "Relative error = " << fabs(F_basePoint - PP_EXACT_OBJ_VALUE) / fabs(PP_EXACT_OBJ_VALUE) << endl;
+	cout << "Relative error = " << fabs(PD_objF_u - PP_EXACT_OBJ_VALUE) / fabs(PP_EXACT_OBJ_VALUE) << endl;
 	cout << "=============================================" << endl;
 	fclose(PD_traceStream);
 	const char* solutionFile = PD_MTX_File_so.c_str();
-	Vector_EpsZero(PD_basePoint);
-	if (SavePoint(PD_basePoint, solutionFile, elapsedTime))
+	Vector_EpsZero(PD_u);
+	if (SavePoint(PD_u, solutionFile, elapsedTime))
 		cout << "Solution is saved into the file '" << solutionFile << "'." << endl;
 	cout << "Solution:\t";
-	for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++) cout << setw(PP_SETW) << PD_basePoint[j];
+	for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++) cout << setw(PP_SETW) << PD_u[j];
 	if (PP_OUTPUT_LIMIT < PD_n) cout << "	...";
 	cout << endl;
 	cout << "Ordered:\t";
-	for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++) cout << setw(PP_SETW) << PD_basePoint[PD_objI[j]];
+	for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++) cout << setw(PP_SETW) << PD_u[PD_objI[j]];
 	if (PP_OUTPUT_LIMIT < PD_n) cout << "	...";
 	cout << endl;
 }
@@ -1479,7 +1682,7 @@ inline void MovingOnSurface(PT_vector_T ptr_unitVectorToSurface, PT_vector_T bas
 		//PD_oneStepDone = true;
 		objF_basePoint = objF_x;
 		Shift(basePoint, ptr_unitVectorToSurface, PD_shiftLength, x);
-/*debug**/
+		/*debug0*
 #ifdef PP_DEBUG
 				cout << "Sift = " << setw(PP_SETW) << PD_shiftLength << "\tt = ";
 		for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++)
@@ -1524,34 +1727,25 @@ inline void DetermineDirection(PT_bsf_parameter_T* parameter, bool* exit, bool* 
 		return;
 	}
 
-	if (!GetDirection(PD_basePoint, parameter->x, PD_direction)) {
+	if (!GetDirection(PD_u, parameter->x, PD_direction)) {
 		cout << "Direction is too small!\n";
 		cout << "Maybe, you should increas PP_OBJECTIVE_VECTOR_LENGTH.\n";
 		*exit = true;
 		return;
 	}
 
-	if (ObjF(parameter->x) <= ObjF(PD_basePoint) - PP_EPS_OBJECTIVE) {
-		cout << setw(PP_SETW) << "F(u) = " << ObjF(PD_basePoint) << " >= F(w) = "
-			<< ObjF(parameter->x) << endl;
-		if (!(PD_utilizeLowCostVariables || PP_BLOCK_OBJ_VARIABLE)) {
-			PD_utilizeLowCostVariables = true;
-			PD_baseObjValue = ObjF(PD_basePoint);
-			cout << "Let's utilize low cost variables.\n";
-			*repeat = true;
-		}
-		else {
-			*exit = true;
-			if (PP_BLOCK_OBJ_VARIABLE)
-				cout << "Maybe, you should make #define PP_BLOCK_OBJ_VARIABLE false.\n";
-			else
-				cout << "Maybe, you should decreas PP_EPS_OBJECTIVE.\n";
-		}
+	if (ObjF(parameter->x) <= PD_objF_u - PP_EPS_OBJECTIVE) {
+		cout << setw(PP_SETW) << "F(u) = " << PD_objF_u << " >= F(w) = " << ObjF(parameter->x) << endl;
+		if (PP_MODE_BLOCK_HCV_VARIABLE)
+			cout << "Maybe, you should make #define PP_MODE_BLOCK_HCV_VARIABLE false.\n";
+		else
+			cout << "Maybe, you should decreas PP_EPS_OBJECTIVE.\n";
+		*exit = true;
 		return;
 	}
 
-	if (fabs(ObjF(parameter->x) - ObjF(PD_basePoint)) < PP_EPS_OBJECTIVE) {
-		cout << setw(PP_SETW) << "F(u) = " << ObjF(PD_basePoint) << " == F(w) = " << ObjF(parameter->x) << "\n";
+	if (fabs(ObjF(parameter->x) - PD_objF_u) < PP_EPS_OBJECTIVE) {
+		cout << setw(PP_SETW) << "F(u) = " << PD_objF_u << " == F(w) = " << ObjF(parameter->x) << "\n";
 		cout << "Maybe, you should decreas PP_EPS_OBJECTIVE.\n";
 		*exit = true;
 		return;
@@ -1559,8 +1753,8 @@ inline void DetermineDirection(PT_bsf_parameter_T* parameter, bool* exit, bool* 
 
 	Vector_EpsZero(PD_direction);
 
-	/*debug**/
-	#ifdef PP_DEBUG //----------------------------------------------//
+/*debug0*
+		#ifdef PP_DEBUG //----------------------------------------------//
 	cout << "D =\t\t";											//
 	for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++)		//
 		cout << setw(PP_SETW) << PD_direction[PD_objI[j]];		//
@@ -1569,7 +1763,7 @@ inline void DetermineDirection(PT_bsf_parameter_T* parameter, bool* exit, bool* 
 #endif // PP_DEBUG ---------------------------------------------//
 /*end debug*/
 
-	if (PP_BLOCK_OBJ_VARIABLE) {
+	if (PP_MODE_BLOCK_HCV_VARIABLE) {
 		parameter->sign = (PD_c[PD_objI[PD_indexToBlock]] >= 0 ? 1 : -1);
 		if (((parameter->sign * PD_direction[PD_objI[PD_indexToBlock]] <= 0)
 			|| (fabs(PD_direction[PD_objI[PD_indexToBlock]]) < PP_EPS_ZERO_DIR))
@@ -1577,7 +1771,7 @@ inline void DetermineDirection(PT_bsf_parameter_T* parameter, bool* exit, bool* 
 		{
 			parameter->indexToBlock = PD_indexToBlock;
 			parameter->m = PD_m;
-			parameter->b = PD_basePoint[PD_objI[PD_indexToBlock]];
+			parameter->b = PD_u[PD_objI[PD_indexToBlock]];
 			PD_m += 2;
 			assert(PD_m <= PP_MM);
 			PD_numDetDir = 0;
@@ -1586,7 +1780,7 @@ inline void DetermineDirection(PT_bsf_parameter_T* parameter, bool* exit, bool* 
 			Vector_MultiplyByNumber(PD_unitObjVector, PP_OBJECTIVE_VECTOR_LENGTH, PD_objVector);
 #ifdef PP_DEBUG
 			cout << "Variable " << PD_indexToBlock - 1 << " is blocked.\n";
-#endif // PP_DEBUG
+#endif
 			*repeat = true;
 		}
 	}

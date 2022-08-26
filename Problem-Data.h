@@ -20,14 +20,14 @@ static int		PD_indexToBlock;			// Index of variable to block
 static int		PD_firstZcvI;				// Index of first zero-costs variable
 static int		PD_firstLcvI;				// Index of first low-costs variable
 static double	PD_minCostPercentile;		// Minimum cost percentile
-static bool		PD_utilizeLowCostVariables;
-static double	PD_baseObjValue;
+static double	PD_objF_u;
+static double	PD_objF_w;
 //========================== Problem structures ====================================
 static PT_matrix_T PD_A;					// Matrix of coefficients of inequalities 
 static PT_column_T PD_b;					// Column of the constant terms of the system Ax <= PD_b
 static PT_vector_T PD_c;					// Objective Function Coefficients
 static PT_vector_T PD_apexPoint;			// Apex point
-static PT_vector_T PD_basePoint;			// Base point on Polytope
+static PT_vector_T PD_u;					// Base point on Polytope
 static PT_vector_T PD_direction;			// Unit vector to set shift direction
 static PT_vector_T PD_hi;					// Higher bound
 static PT_vector_T PD_lo;					// Lower bound
