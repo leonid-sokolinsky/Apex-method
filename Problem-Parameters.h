@@ -406,7 +406,6 @@ This source code has been produced with using BSF-skeleton
 //-------------------------- Jobs  -----------------------
 #define PP_JOB_PSEUDOPOJECTION	0 
 #define PP_JOB_CHECK			1		
-#define PP_JOB_CHECK_S			2		
 //-------------------------- Process states --------------------------
 #define PP_STATE_START					0
 #define PP_STATE_DETERMINE_DIRECTION	1
