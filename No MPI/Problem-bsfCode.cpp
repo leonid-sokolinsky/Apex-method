@@ -7,10 +7,11 @@ Author: Leonid B. Sokolinsky
 This source code has been produced with using BSF-skeleton
 ==============================================================================*/
 // PP_STATE_START
+// PP_STATE_FIND_INITIAL_APPROXIMATION
+// PP_STATE_FIND_INTERIOR_POINT
 // PP_STATE_DETERMINE_DIRECTION
-// MOVING_ALONG_SURFACE
+// PP_STATE_MOVING_ALONG_SURFACE
 // PP_STATE_LANDING
-// PP_STATE_FIND_FEASIBLE_POINT
 
 #include "Problem-Data.h"			// Problem Types 
 #include "Problem-Forwards.h"		// Problem Function Forwards
@@ -64,9 +65,7 @@ void PC_bsf_Init(bool* success) {
 	}
 
 	MakeObjVector(PD_c, PD_objVector);
-	ObjUnitVector(PD_unitObjVector);
-	Vector_MultiplyByNumber(PD_unitObjVector, PP_DISTANCE_TO_APEX, PD_direction);
-	Vector_Addition(PD_u, PD_direction, PD_apexPoint);
+	UnitObjVector(PD_unitObjVector);
 }
 
 void PC_bsf_SetListSize(int* listSize) {
@@ -233,22 +232,99 @@ void PC_bsf_JobDispatcher(
 	static double objF_lcv;
 
 #define BEGIN_LCV_UTILIZATION	0
-#define POSITIVE_LCV			1
-#define NEGATIVE_LCV			2
-#define POSITIVE_ZCV			3
-#define NEGATIVE_ZCV			4
-#define END_LCV_UTILIZATION		5
+#define LCV						1
+#define POSITIVE_ZCV			2
+#define NEGATIVE_ZCV			3
+#define END_LCV_UTILIZATION		4
 
 	switch (PD_state) {
 	case PP_STATE_START://-------------------------- Start -----------------------------
-		assert(!PointInPolytope_s(PD_apexPoint));
-		// Preparations for finding feasible point
+		if (PointInPolytope_s(PD_x0)) {
+			ApexPoint(PD_x0, PD_apexPoint);
+#ifdef PP_DEBUG
+			cout << "Apex point:\t";
+			for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++)
+				cout << setw(PP_SETW) << PD_apexPoint[PD_objI[j]];
+			if (PP_OUTPUT_LIMIT < PD_n)
+				cout << " ...";
+			cout << "\tF(x) = " << setw(PP_SETW) << ObjF(PD_apexPoint);
+			cout << endl;
+			cout << "--------- Finding initial_approximation ------------\n";
+#endif
+			// Preparations for finding initial approximation
+			Vector_Copy(PD_apexPoint, parameter->x);
+			*job = PP_JOB_PSEUDOPOJECTION;
+			PD_state = PP_STATE_FIND_INITIAL_APPROXIMATION;
+			break;
+		}
+		// Preparations for finding interior point
+		Vector_Copy(PD_x0, parameter->x);
+		*job = PP_JOB_PSEUDOPOJECTION;
+		PD_state = PP_STATE_FIND_INTERIOR_POINT;
+#ifdef PP_DEBUG
+		cout << "--------- Finding interior point ------------\n";
+#endif
+		break;
+	case PP_STATE_FIND_INTERIOR_POINT://------------------------- Finding interior point -----------------------------
+		if (!PD_pointIn) {
+			return;
+		}
+		ApexPoint(parameter->x, PD_apexPoint);
+#ifdef PP_DEBUG
+		cout << "Apex point:\t";
+		for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++)
+			cout << setw(PP_SETW) << PD_apexPoint[PD_objI[j]];
+		if (PP_OUTPUT_LIMIT < PD_n)
+			cout << " ...";
+		cout << "\tF(x) = " << setw(PP_SETW) << ObjF(PD_apexPoint);
+		cout << endl;
+		cout << "--------- Finding initial_approximation ------------\n";
+#endif
+		// Preparations for finding initial approximation
 		Vector_Copy(PD_apexPoint, parameter->x);
 		*job = PP_JOB_PSEUDOPOJECTION;
-		PD_state = PP_STATE_FIND_FEASIBLE_POINT;
+		PD_state = PP_STATE_FIND_INITIAL_APPROXIMATION;
+		break;
+	case PP_STATE_FIND_INITIAL_APPROXIMATION://-------------------------- Finding initial approximationt -----------------------------
+		if (!PD_pointIn) {
+			return;
+		}
+
+		/*debug2*
+		SavePoint(parameter->x, x0_File, t);
+		cout << "==================> F(t) = " << setw(PP_SETW) << ObjF(parameter->x) << endl;
+		*exit = true;
+		return;
+		/*end debug*/
+
 #ifdef PP_DEBUG
-		cout << "--------- Finding feasible point ------------\n";
+		cout << "Iter # " << BSF_sv_iterCounter << ". Elapsed time: " << round(t) << endl;
+		cout << "u0 =\t\t";
+		for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++)
+			cout << setw(PP_SETW) << parameter->x[PD_objI[j]];
+		if (PP_OUTPUT_LIMIT < PD_n) cout << " ...";
+		cout << "\tF(t) = " << setw(PP_SETW) << ObjF(parameter->x) << endl;
 #endif
+		/*debug3**
+		*exit = true;
+		return;
+		/*end debug*/
+
+		Vector_Copy(parameter->x, PD_u);
+		PD_objF_u = ObjF(PD_u);
+
+		// Preparations for determining direction
+		Vector_PlusEquals(parameter->x, PD_objVector);
+		assert(!PointInPolytope_s(parameter->x));
+
+		*job = PP_JOB_PSEUDOPOJECTION;
+		PD_state = PP_STATE_DETERMINE_DIRECTION;
+		PD_numDetDir = 0;
+		/*debug00*/
+#ifdef PP_DEBUG
+		cout << "--------- Determine Direction ------------\n";
+#endif
+		/*end debug*/
 		break;
 	case PP_STATE_DETERMINE_DIRECTION://------------------------- Determine Direction -----------------------------
 		if (!PD_pointIn)
@@ -292,10 +368,10 @@ void PC_bsf_JobDispatcher(
 				lcvI = PD_firstLcvI;
 				c_lcvI = PD_c[PD_objI[lcvI]];
 				if (PD_firstLcvI < (PD_firstZcvI == INT_MAX ? PD_n : PD_firstZcvI)) {
-					PD_c[PD_objI[lcvI]] = fabs(PD_c[PD_objI[lcvI]]) + fabs(PD_c[PD_objI[PD_firstLcvI - 1]] / 2);
+					PD_c[PD_objI[lcvI]] = PD_c[PD_objI[lcvI]] + PF_SIGN(PD_c[PD_objI[lcvI]]) * fabs(PD_c[PD_objI[0]]);
 					new_c_lcv = PD_c[PD_objI[lcvI]];
 					MakeObjVector(PD_c, PD_objVector);
-					detDirSwitch = POSITIVE_LCV;
+					detDirSwitch = LCV;
 				}
 				else {
 					PD_c[PD_objI[lcvI]] = fabs(PD_c[PD_objI[PD_firstLcvI - 1]] / 2);
@@ -307,11 +383,11 @@ void PC_bsf_JobDispatcher(
 				Vector_Copy(PD_u, parameter->x);
 				Vector_PlusEquals(parameter->x, PD_objVector);
 				return;
-			case POSITIVE_LCV:
-				/*debug01*
+			case LCV:
+				/*debug01**
 #ifdef PP_DEBUG
 				if (lcvI == PD_firstLcvI)
-					cout << "---------------- Nonzero low cost variables with '+' ----------------\n";
+					cout << "---------------- Nonzero low cost variables ----------------\n";
 				cout << "#" << lcvI << "|" << PD_objI[lcvI] << ":\t";
 				for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++)
 					cout << setw(PP_SETW) << parameter->x[PD_objI[j]];
@@ -334,54 +410,7 @@ void PC_bsf_JobDispatcher(
 				lcvI++;
 				c_lcvI = PD_c[PD_objI[lcvI]];
 				if (lcvI < (PD_firstZcvI == INT_MAX ? PD_n : PD_firstZcvI)) {
-					PD_c[PD_objI[lcvI]] = fabs(PD_c[PD_objI[lcvI]]) + fabs(PD_c[PD_objI[PD_firstLcvI - 1]] / 2);
-					new_c_lcv = PD_c[PD_objI[lcvI]];
-					MakeObjVector(PD_c, PD_objVector);
-					PD_c[PD_objI[lcvI]] = c_lcvI;
-					Vector_Copy(PD_u, parameter->x);
-					Vector_PlusEquals(parameter->x, PD_objVector);
-					return;
-				}
-
-				lcvI = PD_firstLcvI;
-				c_lcvI = PD_c[PD_objI[lcvI]];
-				PD_c[PD_objI[lcvI]] = -(fabs(PD_c[PD_objI[lcvI]]) + fabs(PD_c[PD_objI[PD_firstLcvI - 1]] / 2));
-				new_c_lcv = PD_c[PD_objI[lcvI]];
-				MakeObjVector(PD_c, PD_objVector);
-				PD_c[PD_objI[lcvI]] = c_lcvI;
-				Vector_Copy(PD_u, parameter->x);
-				Vector_PlusEquals(parameter->x, PD_objVector);
-				detDirSwitch = NEGATIVE_LCV;
-				return;
-
-			case NEGATIVE_LCV:
-				/*debug01*
-#ifdef PP_DEBUG
-				if (lcvI == PD_firstLcvI)
-					cout << "---------------- Nonzero low cost variables with '-' ----------------\n";
-				cout << "#" << lcvI << "|" << PD_objI[lcvI] << ":\t";
-				for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++)
-					cout << setw(PP_SETW) << parameter->x[PD_objI[j]];
-				if (PP_OUTPUT_LIMIT < PD_n) cout << " ...";
-				cout << "\tF(t) = " << setw(PP_SETW) << ObjF(parameter->x) << endl;
-#endif // PP_DEBUG
-				/*end debug*/
-
-				objF_lcv = ObjF(parameter->x);
-
-				if (objF_lcv > PD_objF_w + PP_EPS_ZERO_DIR
-					&& objF_lcv > PD_objF_u + PP_EPS_ZERO_DIR
-					&& objF_lcv > max_objF_lcv)
-				{
-					max_objF_lcv = objF_lcv;
-					max_lcvI = lcvI;
-					max_new_c_lcv = new_c_lcv;
-				}
-
-				lcvI++;
-				c_lcvI = PD_c[PD_objI[lcvI]];
-				if (lcvI < (PD_firstZcvI == INT_MAX ? PD_n : PD_firstZcvI)) {
-					PD_c[PD_objI[lcvI]] = -(fabs(PD_c[PD_objI[lcvI]]) + fabs(PD_c[PD_objI[PD_firstLcvI - 1]] / 2));
+					PD_c[PD_objI[lcvI]] = PD_c[PD_objI[lcvI]] + PF_SIGN(PD_c[PD_objI[lcvI]]) * fabs(PD_c[PD_objI[PD_firstLcvI - 1]] / 2);
 					new_c_lcv = PD_c[PD_objI[lcvI]];
 					MakeObjVector(PD_c, PD_objVector);
 					PD_c[PD_objI[lcvI]] = c_lcvI;
@@ -418,8 +447,9 @@ void PC_bsf_JobDispatcher(
 					detDirSwitch = END_LCV_UTILIZATION;
 					return;
 				}
+
 			case POSITIVE_ZCV:
-				/*debug01*
+				/*debug01**
 #ifdef PP_DEBUG
 				if (lcvI == PD_firstZcvI)
 					cout << "---------------- Zero cost variables with '+' ----------------\n";
@@ -467,7 +497,7 @@ void PC_bsf_JobDispatcher(
 				detDirSwitch = NEGATIVE_ZCV;
 				return;
 			case NEGATIVE_ZCV:
-				/*debug01*
+				/*debug01**
 #ifdef PP_DEBUG
 				if (lcvI == PD_firstZcvI)
 					cout << "---------------- Zero cost variables with '-' ----------------\n";
@@ -516,6 +546,7 @@ void PC_bsf_JobDispatcher(
 				return;
 
 			case END_LCV_UTILIZATION:
+
 				/*debug02*/
 #ifdef PP_DEBUG
 				if (max_lcvI > 0) {
@@ -525,6 +556,28 @@ void PC_bsf_JobDispatcher(
 						<< PD_objI[max_lcvI] << ":\tF(t) = " << setw(PP_SETW) << ObjF(parameter->x) << endl;
 				}
 #endif // PP_DEBUG
+				/*end debug*/
+
+				/*debug00*/
+#ifdef PP_DEBUG
+				if (max_lcvI > 0) {
+					cout << "w =\t\t";
+					for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++)
+						cout << setw(PP_SETW) << parameter->x[PD_objI[j]];
+					if (PP_OUTPUT_LIMIT < PD_n) cout << " ...";
+					cout << "\tF(t) = " << setw(PP_SETW) << ObjF(parameter->x);
+					cout << endl;
+				}
+#endif
+				/*end debug*/
+
+				/*debug8*/
+				if (fabs(ObjF(parameter->x) - PP_EXACT_OBJ_VALUE) <= PP_EPS_OBJ) {
+					Vector_Copy(parameter->x, PD_u);
+					PD_objF_u = ObjF(parameter->x);
+					*exit = true;
+					return;
+				}
 				/*end debug*/
 
 				if (max_lcvI == 0)
@@ -540,17 +593,6 @@ void PC_bsf_JobDispatcher(
 		}
 
 		detDirSwitch = BEGIN_LCV_UTILIZATION;
-
-		/*debug00*/
-#ifdef PP_DEBUG
-		cout << "w =\t\t";
-		for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++)
-			cout << setw(PP_SETW) << parameter->x[PD_objI[j]];
-		if (PP_OUTPUT_LIMIT < PD_n) cout << " ...";
-		cout << "\tF(t) = " << setw(PP_SETW) << ObjF(parameter->x);
-		cout << endl;
-#endif
-		/*end debug*/
 
 		DetermineDirection(parameter, exit, &repeat);
 
@@ -592,9 +634,9 @@ void PC_bsf_JobDispatcher(
 /*end debug*/
 		*job = PP_JOB_CHECK;
 		ptr_unitVectorToSurface = PD_direction;
-		PD_state = MOVING_ALONG_SURFACE;
+		PD_state = PP_STATE_MOVING_ALONG_SURFACE;
 		break;
-	case MOVING_ALONG_SURFACE://-------------------------- Moving along surface -----------------------------
+	case PP_STATE_MOVING_ALONG_SURFACE://-------------------------- Moving along surface -----------------------------
 		MovingOnSurface(ptr_unitVectorToSurface, PD_u, parameter->x, &goOn);
 		if (goOn)
 			return;
@@ -606,7 +648,7 @@ void PC_bsf_JobDispatcher(
 #ifdef PP_DEBUG
 		cout << "--------- Landing ------------\n";
 #endif //
-/*end debug*/
+		/*end debug*/
 		break;
 	case PP_STATE_LANDING://-------------------------- Landing -----------------------------
 		if (!PD_pointIn)
@@ -618,7 +660,6 @@ void PC_bsf_JobDispatcher(
 		//WriteTrace(PD_u);
 
 		/*debug8*/
-//		if (PD_objF_u + PP_EPS_OBJ > PP_EXACT_OBJ_VALUE) {
 		if (fabs(PD_objF_u - PP_EXACT_OBJ_VALUE) <= PP_EPS_OBJ) {
 			*exit = true;
 			return;
@@ -659,44 +700,6 @@ void PC_bsf_JobDispatcher(
 #endif
 /*end debug*/
 		break;
-	case PP_STATE_FIND_FEASIBLE_POINT://-------------------------- Finding feasible point -----------------------------
-		if (!PD_pointIn) {
-			return;
-		}
-
-		/*debug2*
-		SavePoint(parameter->x, x0_File, t);
-		cout << "==================> F(t) = " << setw(PP_SETW) << ObjF(parameter->x) << endl;
-	*exit = true;
-	return;
-	/*end debug*/
-
-
-#ifdef PP_DEBUG
-		cout << "Iter # " << BSF_sv_iterCounter << ". Elapsed time: " << round(t) << endl;
-		cout << "u =\t\t";
-		for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++)
-			cout << setw(PP_SETW) << parameter->x[PD_objI[j]];
-		if (PP_OUTPUT_LIMIT < PD_n) cout << " ...";
-		cout << "\tF(t) = " << setw(PP_SETW) << ObjF(parameter->x) << endl;
-#endif
-
-		Vector_Copy(parameter->x, PD_u);
-		PD_objF_u = ObjF(PD_u);
-
-		// Preparations for determining direction
-		Vector_PlusEquals(parameter->x, PD_objVector);
-		assert(!PointInPolytope_s(parameter->x));
-
-		*job = PP_JOB_PSEUDOPOJECTION;
-		PD_state = PP_STATE_DETERMINE_DIRECTION;
-		PD_numDetDir = 0;
-		/*debug00*/
-#ifdef PP_DEBUG
-		cout << "--------- Determine Direction ------------\n";
-#endif
-/*end debug*/
-		break;
 	default://------------------------------------- default -----------------------------------
 		cout << "PC_bsf_JobDispatcher: Undefined state!" << endl;
 		*exit = true;
@@ -731,7 +734,7 @@ void PC_bsf_ParametersOutput(PT_bsf_parameter_T parameter) {
 	cout << "Eps Shift:\t\t" << PP_EPS_SHIFT << endl;
 	cout << "Eps Zero Direction:\t" << PP_EPS_ZERO_DIR << endl;
 	cout << "Exact Obj Value:\t" << PP_EXACT_OBJ_VALUE << endl;
-	cout << "Distance to Apex:\t" << PP_DISTANCE_TO_APEX << endl;
+	cout << "Sigma to Apex:\t\t" << PP_SIGMA_TO_APEX << endl;
 	cout << "Low Cost Percentile:\t" << PP_LOW_COST_PERCENTILE << endl;
 	cout << "Gap Max:\t\t" << PP_GAP << endl;
 	cout << "Obj Vector Length:\t" << PP_OBJECTIVE_VECTOR_LENGTH << endl;
@@ -759,18 +762,11 @@ void PC_bsf_ParametersOutput(PT_bsf_parameter_T parameter) {
 	if (PP_OUTPUT_LIMIT < PD_n)
 		cout << " ...";
 	cout << endl;
-	cout << "Start point:\t";
-	for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++) cout << setw(PP_SETW) << PD_u[PD_objI[j]];
+	cout << "x0 =\t\t";
+	for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++) cout << setw(PP_SETW) << PD_x0[PD_objI[j]];
 	if (PP_OUTPUT_LIMIT < PD_n)
 		cout << " ...";
-	cout << "\tF(x) = " << ObjF(PD_u);
-	cout << endl;
-	cout << "Apex point:\t";
-	for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++) 
-		cout << setw(PP_SETW) << PD_apexPoint[PD_objI[j]];
-	if (PP_OUTPUT_LIMIT < PD_n)
-		cout << " ...";
-	cout << "\tF(x) = " << ObjF(PD_apexPoint);
+	cout << "\tF(x) = " << setw(PP_SETW) << ObjF(PD_x0);
 	cout << endl;
 	cout << "-------------------------------------------" << endl;
 }
@@ -862,7 +858,7 @@ void PC_bsfAssignParameter(PT_bsf_parameter_T parameter) { PC_bsf_CopyParameter(
 void PC_bsfAssignSublistLength(int value) { BSF_sv_sublistLength = value; };
 
 //---------------------------------- Problem functions -------------------------
-inline PT_float_T Vector_DotProductSquare(PT_vector_T x, PT_vector_T y) {
+inline PT_float_T Vector_DotProduct(PT_vector_T x, PT_vector_T y) {
 	PT_float_T sum = 0;
 	for (int j = 0; j < PD_n; j++)
 		sum += x[j] * y[j];
@@ -884,12 +880,12 @@ inline PT_float_T Vector_NormSquare(PT_vector_T x) {
 
 inline bool PointInHalfspace // If the point belongs to the Halfspace with prescigion of PD_Gap
 (PT_vector_T point, PT_vector_T a, PT_float_T b) {
-	return Vector_DotProductSquare(a, point) <= b + PP_GAP;
+	return Vector_DotProduct(a, point) <= b + PP_GAP;
 }
 
 inline bool PointInHalfspace_s // If the point belongs to the Halfspace with prescigion of PP_EPS_ZERO_COMPARE
 (PT_vector_T point, PT_vector_T a, PT_float_T b) {
-	return Vector_DotProductSquare(a, point) <= b + PP_EPS_ZERO_COMPARE;
+	return Vector_DotProduct(a, point) <= b + PP_EPS_ZERO_COMPARE;
 }
 
 inline bool PointInPolytope_s(PT_vector_T x) { // If the point belongs to the polytope with prescigion of PP_EPS_ZERO_COMPARE
@@ -1330,7 +1326,7 @@ static bool LoadMatrixFormat() {
 	if (stream == NULL) {
 		// Generating Coordinates of starting point
 		for (int j = 0; j < PD_n; j++)
-			PD_u[j] = 0;
+			PD_x0[j] = 0;
 		return true;
 	}
 
@@ -1361,7 +1357,7 @@ static bool LoadMatrixFormat() {
 				<< "Unexpected end of file" << endl;
 			return false;
 		}
-		PD_u[j] = strtod(str, &chr);
+		PD_x0[j] = strtod(str, &chr);
 	}
 	fclose(stream);
 	return true;
@@ -1577,7 +1573,7 @@ inline void Vector_ProjectOnHalfspace(PT_vector_T point, PT_vector_T a, PT_float
 		return;
 	}
 
-	factor = (b - Vector_DotProductSquare(point, a)) / aNormSquare;
+	factor = (b - Vector_DotProduct(point, a)) / aNormSquare;
 
 	if (factor > 0 || fabs(factor) < PP_EPS_ZERO_COMPARE) {
 		*exitCode = PP_EXITCODE_POINT_BELONGS_TO_HALFSPACE;
@@ -1597,7 +1593,7 @@ inline PT_float_T Distance(PT_vector_T x, PT_vector_T y) {
 	return Vector_Norm(z);
 }
 
-inline void ObjUnitVector(PT_vector_T objUnitVector) { // Calculating Objective Unit Vector
+inline void UnitObjVector(PT_vector_T objUnitVector) { // Calculating Objective Unit Vector
 	double c_norm = Vector_Norm(PD_c);
 	Vector_DivideByNumber(PD_c, c_norm, objUnitVector);
 }
@@ -1750,7 +1746,7 @@ inline void DetermineDirection(PT_bsf_parameter_T* parameter, bool* exit, bool* 
 
 	/*debug7*
 if (PD_objF_u >= ObjF(parameter->x) + PP_EPS_OBJ) {
-	cout << setw(PP_SETW) << "F(u) = " << PD_objF_u << " >= F(w) = " << ObjF(parameter->x) << endl;
+	cout << setw(PP_SETW) << "F(u) = " << PD_objF_u << " >= F(w) = " << setw(PP_SETW) << ObjF(parameter->x) << endl;
 	if (PP_MODE_BLOCK_HCV_VARIABLE)
 		cout << "Maybe, you should make #define PP_MODE_BLOCK_HCV_VARIABLE false.\n";
 	else
@@ -1762,7 +1758,7 @@ if (PD_objF_u >= ObjF(parameter->x) + PP_EPS_OBJ) {
 
 	/*debug8*
 if (fabs(ObjF(parameter->x) - PD_objF_u) < PP_EPS_OBJ) {
-	cout << setw(PP_SETW) << "F(u) = " << PD_objF_u << " == F(w) = " << ObjF(parameter->x) << "\n";
+	cout << setw(PP_SETW) << "F(u) = " << PD_objF_u << " == F(w) = " << setw(PP_SETW) << ObjF(parameter->x) << "\n";
 	cout << "Maybe, you should decreas PP_EPS_OBJ.\n";
 	*exit = true;
 	return;
@@ -1845,17 +1841,32 @@ inline bool OpenTraceFile() {
 	return true;
 }
 
-/* work piece
-cout << "Worker: a =\t";
-for (int j = 0; j < PP_N + 2; j++) {
-	cout << mapElem->a[j] << "\t";
+inline void ApexPoint(PT_vector_T innerPont, PT_vector_T apexPoint) {
+	PT_float_T a_dot_c, a_dot_innerPoint;
+	PT_float_T max_cDistance = 0;
+	PT_float_T cFactor;
+	PT_vector_T apexBase;
+	PT_vector_T c_stripped;
+
+	for (int j = 0; j < PD_n; j++)
+		if (fabs(PD_c[PD_objI[j]]) / fabs(PD_c[PD_objI[0]]) > PP_LOW_COST_PERCENTILE)
+			c_stripped[PD_objI[j]] = PD_c[PD_objI[j]];
+		else
+			c_stripped[PD_objI[j]] = 0;
+
+	for (int i = 0; i < PD_m; i++) {
+		a_dot_c = Vector_DotProduct(PD_A[i],c_stripped);
+		if (a_dot_c < PP_EPS_ZERO_COMPARE)
+			continue;
+		a_dot_innerPoint = Vector_DotProduct(PD_A[i], innerPont);
+		if (fabs(PD_b[i] - a_dot_innerPoint) < PP_EPS_ZERO_COMPARE)
+			continue;
+		cFactor = (PD_b[i] - a_dot_innerPoint) / a_dot_c;
+		assert(cFactor > -PP_EPS_ZERO_COMPARE * 10);
+		max_cDistance = PF_MAX(max_cDistance, cFactor);
+	}
+	Vector_MultiplyByNumber(c_stripped, max_cDistance, PD_direction);
+	Vector_Addition(innerPont, PD_direction, apexBase);
+	Vector_MultiplyByNumber(PD_unitObjVector, PP_SIGMA_TO_APEX, PD_direction);
+	Vector_Addition(apexBase, PD_direction, apexPoint);
 }
-cout << "\tb =\t" << *mapElem->b;
-cout << endl;
-cout << "x =\t";
-for (int j = 0; j < PD_n; j++) {
-	cout << BSF_sv_parameter.x[j] << "\t";
-}
-cout << endl << flush;
-system("pause");
-*/

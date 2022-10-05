@@ -27,6 +27,7 @@ static PT_matrix_T PD_A;					// Matrix of coefficients of inequalities
 static PT_column_T PD_b;					// Column of the constant terms of the system Ax <= PD_b
 static PT_vector_T PD_c;					// Objective Function Coefficients
 static PT_vector_T PD_apexPoint;			// Apex point
+static PT_vector_T PD_x0;					// Starting point (defauil is 0)
 static PT_vector_T PD_u;					// Base point on Polytope
 static PT_vector_T PD_direction;			// Unit vector to set shift direction
 static PT_vector_T PD_hi;					// Higher bound
