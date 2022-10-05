@@ -232,10 +232,11 @@ void PC_bsf_JobDispatcher(
 	static double objF_lcv;
 
 #define BEGIN_LCV_UTILIZATION	0
-#define LCV						1
-#define POSITIVE_ZCV			2
-#define NEGATIVE_ZCV			3
-#define END_LCV_UTILIZATION		4
+#define POSITIVE_LCV			1
+#define NEGATIVE_LCV			2
+#define POSITIVE_ZCV			3
+#define NEGATIVE_ZCV			4
+#define END_LCV_UTILIZATION		5
 
 	switch (PD_state) {
 	case PP_STATE_START://-------------------------- Start -----------------------------
@@ -305,7 +306,7 @@ void PC_bsf_JobDispatcher(
 		if (PP_OUTPUT_LIMIT < PD_n) cout << " ...";
 		cout << "\tF(t) = " << setw(PP_SETW) << ObjF(parameter->x) << endl;
 #endif
-		/*debug3*/
+		/*debug3**
 		*exit = true;
 		return;
 		/*end debug*/
@@ -368,10 +369,10 @@ void PC_bsf_JobDispatcher(
 		lcvI = PD_firstLcvI;
 		c_lcvI = PD_c[PD_objI[lcvI]];
 		if (PD_firstLcvI < (PD_firstZcvI == INT_MAX ? PD_n : PD_firstZcvI)) {
-			PD_c[PD_objI[lcvI]] = PD_c[PD_objI[lcvI]] + PF_SIGN(PD_c[PD_objI[lcvI]]) * fabs(PD_c[PD_objI[0]]);
+			PD_c[PD_objI[lcvI]] = fabs(PD_c[PD_objI[lcvI]]) + fabs(PD_c[PD_objI[PD_firstLcvI - 1]] / 2);
 			new_c_lcv = PD_c[PD_objI[lcvI]];
 			MakeObjVector(PD_c, PD_objVector);
-			detDirSwitch = LCV;
+			detDirSwitch = POSITIVE_LCV;
 		}
 		else {
 			PD_c[PD_objI[lcvI]] = fabs(PD_c[PD_objI[PD_firstLcvI - 1]] / 2);
@@ -383,11 +384,11 @@ void PC_bsf_JobDispatcher(
 		Vector_Copy(PD_u, parameter->x);
 		Vector_PlusEquals(parameter->x, PD_objVector);
 		return;
-			case LCV:
+			case POSITIVE_LCV:
 				/*debug01**
 #ifdef PP_DEBUG
 				if (lcvI == PD_firstLcvI)
-					cout << "---------------- Nonzero low cost variables ----------------\n";
+					cout << "---------------- Nonzero low cost variables with '+' ----------------\n";
 				cout << "#" << lcvI << "|" << PD_objI[lcvI] << ":\t";
 				for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++)
 					cout << setw(PP_SETW) << parameter->x[PD_objI[j]];
@@ -410,7 +411,54 @@ void PC_bsf_JobDispatcher(
 				lcvI++;
 				c_lcvI = PD_c[PD_objI[lcvI]];
 				if (lcvI < (PD_firstZcvI == INT_MAX ? PD_n : PD_firstZcvI)) {
-					PD_c[PD_objI[lcvI]] = PD_c[PD_objI[lcvI]] + PF_SIGN(PD_c[PD_objI[lcvI]]) * fabs(PD_c[PD_objI[PD_firstLcvI - 1]] / 2);
+					PD_c[PD_objI[lcvI]] = fabs(PD_c[PD_objI[lcvI]]) + fabs(PD_c[PD_objI[PD_firstLcvI - 1]] / 2);
+					new_c_lcv = PD_c[PD_objI[lcvI]];
+					MakeObjVector(PD_c, PD_objVector);
+					PD_c[PD_objI[lcvI]] = c_lcvI;
+					Vector_Copy(PD_u, parameter->x);
+					Vector_PlusEquals(parameter->x, PD_objVector);
+					return;
+				}
+
+				lcvI = PD_firstLcvI;
+				c_lcvI = PD_c[PD_objI[lcvI]];
+				PD_c[PD_objI[lcvI]] = -(fabs(PD_c[PD_objI[lcvI]]) + fabs(PD_c[PD_objI[PD_firstLcvI - 1]] / 2));
+				new_c_lcv = PD_c[PD_objI[lcvI]];
+				MakeObjVector(PD_c, PD_objVector);
+				PD_c[PD_objI[lcvI]] = c_lcvI;
+				Vector_Copy(PD_u, parameter->x);
+				Vector_PlusEquals(parameter->x, PD_objVector);
+				detDirSwitch = NEGATIVE_LCV;
+				return;
+
+			case NEGATIVE_LCV:
+				/*debug01*
+#ifdef PP_DEBUG
+				if (lcvI == PD_firstLcvI)
+					cout << "---------------- Nonzero low cost variables with '-' ----------------\n";
+				cout << "#" << lcvI << "|" << PD_objI[lcvI] << ":\t";
+				for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++)
+					cout << setw(PP_SETW) << parameter->x[PD_objI[j]];
+				if (PP_OUTPUT_LIMIT < PD_n) cout << " ...";
+				cout << "\tF(t) = " << setw(PP_SETW) << ObjF(parameter->x) << endl;
+#endif // PP_DEBUG
+				/*end debug*/
+
+				objF_lcv = ObjF(parameter->x);
+
+				if (objF_lcv > PD_objF_w + PP_EPS_ZERO_DIR
+					&& objF_lcv > PD_objF_u + PP_EPS_ZERO_DIR
+					&& objF_lcv > max_objF_lcv)
+				{
+					max_objF_lcv = objF_lcv;
+					max_lcvI = lcvI;
+					max_new_c_lcv = new_c_lcv;
+				}
+
+				lcvI++;
+				c_lcvI = PD_c[PD_objI[lcvI]];
+				if (lcvI < (PD_firstZcvI == INT_MAX ? PD_n : PD_firstZcvI)) {
+					PD_c[PD_objI[lcvI]] = -(fabs(PD_c[PD_objI[lcvI]]) + fabs(PD_c[PD_objI[PD_firstLcvI - 1]] / 2));
 					new_c_lcv = PD_c[PD_objI[lcvI]];
 					MakeObjVector(PD_c, PD_objVector);
 					PD_c[PD_objI[lcvI]] = c_lcvI;
@@ -550,7 +598,7 @@ void PC_bsf_JobDispatcher(
 				/*debug02*/
 #ifdef PP_DEBUG
 				if (max_lcvI > 0) {
-					cout << "Optimal LCV is found with native c = "
+					cout << "Optimal POSITIVE_LCV is found with native c = "
 						<< (PD_c[PD_objI[max_lcvI]] == 0 ? 0 : PD_c[PD_objI[max_lcvI]])
 						<< " and new c = " << max_new_c_lcv << " : #" << max_lcvI << "|"
 						<< PD_objI[max_lcvI] << ":\tF(t) = " << setw(PP_SETW) << ObjF(parameter->x) << endl;
@@ -581,7 +629,7 @@ void PC_bsf_JobDispatcher(
 				/*end debug*/
 
 				if (max_lcvI == 0)
-					cout << "Optimal LCV not found!\n";
+					cout << "Optimal POSITIVE_LCV not found!\n";
 
 				MakeObjVector(PD_c, PD_objVector);
 				break;

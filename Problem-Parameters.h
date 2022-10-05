@@ -7,7 +7,7 @@ Author: Leonid B. Sokolinsky
 This source code has been produced with using BSF-skeleton
 ==============================================================================*/
 //-------------------------- Compilation Modes -----------------------
-#define PP_DEBUG
+//#define PP_DEBUG
 #define PP_PATH "D:/OneDrive/_private/Программы/BSF/BSF Target/Problems/"
 //#define PP_PATH "Problems/"
 //=========================== Problem Parameters =========================
@@ -32,7 +32,7 @@ This source code has been produced with using BSF-skeleton
 #define PP_MODE_USE_LCV_VARIABLE	false	// utilize low cost and zero variables
 //------------------------------------------------------------------/**/
 
-/**#define PP_PROBLEM_NAME		"adlittle"	//========
+/**/#define PP_PROBLEM_NAME		"adlittle"	//========
 #define PP_M 56		// Number of equations (number of rows in *.mtx)
 #define PP_N 138	// Number of variables (number of cols in *.mtx)
 //------------------------------------------------------------------
@@ -44,13 +44,13 @@ This source code has been produced with using BSF-skeleton
 #define PP_EPS_ZERO_DIR				1E-5	// Accuracy of zero value for direction vector coordinates
 #define PP_EXACT_OBJ_VALUE		-225494.963	// Exact maximum value of objective function
 #define PP_INFINITY					1E+308	// High bound in *_hi.mtx
-#define PP_SIGMA_TO_APEX			1E+4	// Distance from apex base to apex point
+#define PP_SIGMA_TO_APEX			5500	// Distance from apex base to apex point
 #define PP_GAP						0.2		// Minimum distance to polytope (not too small!!!)
-#define PP_LOW_COST_PERCENTILE		2		// Percentile for low cost variable (must be in [0,1])
+#define PP_LOW_COST_PERCENTILE		0.01		// Percentile for low cost variable (must be in [0,1])
 #define PP_OBJECTIVE_VECTOR_LENGTH	0.1		// Length of Objective Vector
 #define PP_START_SHIFT_LENGTH		1		// Start length of shift vector
 #define PP_MODE_BLOCK_HCV_VARIABLE	false	// block high cost variables
-#define PP_MODE_USE_LCV_VARIABLE	false	// utilize low cost and zero variables
+#define PP_MODE_USE_LCV_VARIABLE	true	// utilize low cost and zero variables
 //------------------------------------------------------------------/**/
 
 /**#define PP_PROBLEM_NAME		"blend"	//==========================================
@@ -216,7 +216,7 @@ This source code has been produced with using BSF-skeleton
 #define PP_MODE_USE_LCV_VARIABLE	false	// utilize low cost and zero variables
 //------------------------------------------------------------------/**/
 
-/**/#define PP_PROBLEM_NAME		"simple1" //==========================================
+/**#define PP_PROBLEM_NAME		"simple1" //==========================================
 #define PP_M 4		// Number of equations (number of rows in *.mtx)
 #define PP_N 7		// Number of variables (number of cols in *.mtx)
 //------------------------------------------------------------------

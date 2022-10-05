@@ -216,7 +216,7 @@ This source code has been produced with using BSF-skeleton
 #define PP_MODE_USE_LCV_VARIABLE	false	// utilize low cost and zero variables
 //------------------------------------------------------------------/**/
 
-/**/#define PP_PROBLEM_NAME		"simple1" //==========================================
+/**#define PP_PROBLEM_NAME		"simple1" //==========================================
 #define PP_M 4		// Number of equations (number of rows in *.mtx)
 #define PP_N 7		// Number of variables (number of cols in *.mtx)
 //------------------------------------------------------------------
@@ -363,7 +363,7 @@ This source code has been produced with using BSF-skeleton
 #define PP_MODE_USE_LCV_VARIABLE	false	// utilize low cost and zero variables
 //------------------------------------------------------------------/**/
 
-/**#define PP_PROBLEM_NAME		"simple_lcv_neg" //==========================================
+/**/#define PP_PROBLEM_NAME		"simple_lcv_neg" //==========================================
 #define PP_M 4		// Number of equations (number of rows in *.mtx)
 #define PP_N 7		// Number of variables (number of cols in *.mtx)
 //------------------------------------------------------------------
