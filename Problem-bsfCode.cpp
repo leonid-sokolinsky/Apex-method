@@ -306,7 +306,7 @@ void PC_bsf_JobDispatcher(
 		if (PP_OUTPUT_LIMIT < PD_n) cout << " ...";
 		cout << "\tF(t) = " << setw(PP_SETW) << ObjF(parameter->x) << endl;
 #endif
-		/*debug3**
+		/*debug3**/
 		*exit = true;
 		return;
 		/*end debug*/
