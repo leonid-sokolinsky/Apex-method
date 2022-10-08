@@ -241,7 +241,9 @@ void PC_bsf_JobDispatcher(
 	switch (PD_state) {
 	case PP_STATE_START://-------------------------- Start -----------------------------
 		if (PointInPolytope_s(PD_x0)) {
-			ApexPoint(PD_x0, PD_apexPoint);
+			// PD_x0 случайная точка с положительными координатами вне базового многогранника
+			// Vector_Copy(PD_x0, PD_apexPoint);
+			ApexPoint(PD_x0, PD_apexPoint); // Удалить
 #ifdef PP_DEBUG
 			cout << "Apex point:\t";
 			for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++)
@@ -306,7 +308,7 @@ void PC_bsf_JobDispatcher(
 		if (PP_OUTPUT_LIMIT < PD_n) cout << " ...";
 		cout << "\tF(t) = " << setw(PP_SETW) << ObjF(parameter->x) << endl;
 #endif
-		/*debug3**/
+		/*debug3**
 		*exit = true;
 		return;
 		/*end debug*/
@@ -619,7 +621,7 @@ void PC_bsf_JobDispatcher(
 #endif
 				/*end debug*/
 
-				/*debug8*/
+				/*debug8**
 				if (fabs(ObjF(parameter->x) - PP_EXACT_OBJ_VALUE) <= PP_EPS_OBJ) {
 					Vector_Copy(parameter->x, PD_u);
 					PD_objF_u = ObjF(parameter->x);
@@ -707,7 +709,7 @@ void PC_bsf_JobDispatcher(
 
 		//WriteTrace(PD_u);
 
-		/*debug8*/
+		/*debug8**
 		if (fabs(PD_objF_u - PP_EXACT_OBJ_VALUE) <= PP_EPS_OBJ) {
 		*exit = true;
 			return;
@@ -1793,7 +1795,7 @@ inline void DetermineDirection(PT_bsf_parameter_T* parameter, bool* exit, bool* 
 		return;
 	}
 
-		/*debug7*
+		/*debug7*/
 	if (PD_objF_u >= ObjF(parameter->x) + PP_EPS_OBJ) {
 		cout << setw(PP_SETW) << "F(u) = " << PD_objF_u << " >= F(w) = " << setw(PP_SETW) << ObjF(parameter->x) << endl;
 		if (PP_MODE_BLOCK_HCV_VARIABLE)
@@ -1805,7 +1807,7 @@ inline void DetermineDirection(PT_bsf_parameter_T* parameter, bool* exit, bool* 
 	}
 		/*end debug*/
 
-		/*debug8*
+		/*debug8*/
 	if (fabs(ObjF(parameter->x) - PD_objF_u) < PP_EPS_OBJ) {
 		cout << setw(PP_SETW) << "F(u) = " << PD_objF_u << " == F(w) = " << setw(PP_SETW) << ObjF(parameter->x) << "\n";
 		cout << "Maybe, you should decreas PP_EPS_OBJ.\n";
@@ -1875,14 +1877,14 @@ inline void ApexPoint(PT_vector_T innerPont, PT_vector_T apexPoint) {
 			c_stripped[PD_objI[j]] = 0;
 
 	for (int i = 0; i < PD_m; i++) {
-		a_dot_c = Vector_DotProduct(PD_A[i], c_stripped);
+		a_dot_c = Vector_DotProduct(PD_A[i],c_stripped);
 		if (a_dot_c < PP_EPS_ZERO_COMPARE)
 			continue;
 		a_dot_innerPoint = Vector_DotProduct(PD_A[i], innerPont);
 		if (fabs(PD_b[i] - a_dot_innerPoint) < PP_EPS_ZERO_COMPARE)
 			continue;
 		cFactor = (PD_b[i] - a_dot_innerPoint) / a_dot_c;
-		assert(cFactor > -PP_EPS_ZERO_COMPARE * 10);
+//		assert(cFactor > -PP_EPS_ZERO_COMPARE * 10);
 		max_cDistance = PF_MAX(max_cDistance, cFactor);
 	}
 	Vector_MultiplyByNumber(c_stripped, max_cDistance, PD_direction);

@@ -240,8 +240,10 @@ void PC_bsf_JobDispatcher(
 
 	switch (PD_state) {
 	case PP_STATE_START://-------------------------- Start -----------------------------
-		if (PointInPolytope_s(PD_x0)) {
-			ApexPoint(PD_x0, PD_apexPoint);
+		if (PointInPolytope_s(PD_x0)) { 
+			// PD_x0 случайнвя точка с положительными координатами вне базового многогранника
+			// Vector_Copy(PD_x0, PD_apexPoint);
+			ApexPoint(PD_x0, PD_apexPoint); // Удалить
 #ifdef PP_DEBUG
 			cout << "Apex point:\t";
 			for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++)
