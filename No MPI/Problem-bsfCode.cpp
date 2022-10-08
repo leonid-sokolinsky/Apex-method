@@ -619,7 +619,7 @@ void PC_bsf_JobDispatcher(
 #endif
 				/*end debug*/
 
-				/*debug8*/
+				/*debug8**
 				if (fabs(ObjF(parameter->x) - PP_EXACT_OBJ_VALUE) <= PP_EPS_OBJ) {
 					Vector_Copy(parameter->x, PD_u);
 					PD_objF_u = ObjF(parameter->x);
@@ -705,9 +705,9 @@ void PC_bsf_JobDispatcher(
 		Vector_Copy(parameter->x, PD_u);
 		PD_objF_u = ObjF(PD_u);
 
-		//WriteTrace(PD_u);
+		WriteTrace(PD_u);
 
-		/*debug8*/
+		/*debug8**
 		if (fabs(PD_objF_u - PP_EXACT_OBJ_VALUE) <= PP_EPS_OBJ) {
 			*exit = true;
 			return;
@@ -1792,7 +1792,7 @@ inline void DetermineDirection(PT_bsf_parameter_T* parameter, bool* exit, bool* 
 		return;
 	}
 
-	/*debug7*
+	/*debug7*/
 if (PD_objF_u >= ObjF(parameter->x) + PP_EPS_OBJ) {
 	cout << setw(PP_SETW) << "F(u) = " << PD_objF_u << " >= F(w) = " << setw(PP_SETW) << ObjF(parameter->x) << endl;
 	if (PP_MODE_BLOCK_HCV_VARIABLE)
@@ -1804,7 +1804,7 @@ if (PD_objF_u >= ObjF(parameter->x) + PP_EPS_OBJ) {
 }
 	/*end debug*/
 
-	/*debug8*
+	/*debug8*/
 if (fabs(ObjF(parameter->x) - PD_objF_u) < PP_EPS_OBJ) {
 	cout << setw(PP_SETW) << "F(u) = " << PD_objF_u << " == F(w) = " << setw(PP_SETW) << ObjF(parameter->x) << "\n";
 	cout << "Maybe, you should decreas PP_EPS_OBJ.\n";
@@ -1910,7 +1910,7 @@ inline void ApexPoint(PT_vector_T innerPont, PT_vector_T apexPoint) {
 		if (fabs(PD_b[i] - a_dot_innerPoint) < PP_EPS_ZERO_COMPARE)
 			continue;
 		cFactor = (PD_b[i] - a_dot_innerPoint) / a_dot_c;
-		assert(cFactor > -PP_EPS_ZERO_COMPARE * 10);
+//		assert(cFactor > -(PP_EPS_ZERO_COMPARE) * 100);
 		max_cDistance = PF_MAX(max_cDistance, cFactor);
 	}
 	Vector_MultiplyByNumber(c_stripped, max_cDistance, PD_direction);
