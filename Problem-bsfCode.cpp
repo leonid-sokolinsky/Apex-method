@@ -22,7 +22,7 @@ using namespace std;
 void PC_bsf_SetInitParameter(PT_bsf_parameter_T* parameter) {
 	for (int j = 0; j < PD_n; j++) // Generating initial approximation
 		parameter->x[j] = PD_u[j];
-};
+}
 
 void PC_bsf_Init(bool* success) {
 	PD_state = PP_STATE_START;
@@ -166,7 +166,7 @@ void PC_bsf_ProcessResults(
 
 	static PT_vector_T relaxationVector;
 	for (int j = 0; j < PD_n; j++)
-		relaxationVector[j] = reduceResult->projection[j] / (double)(reduceResult->nonZeroCounter + 1);
+		relaxationVector[j] = reduceResult->projection[j] / (double)(reduceResult->nonZeroCounter);
 	Vector_PlusEquals(parameter->x, relaxationVector);
 }
 
@@ -241,9 +241,8 @@ void PC_bsf_JobDispatcher(
 	switch (PD_state) {
 	case PP_STATE_START://-------------------------- Start -----------------------------
 		if (PointInPolytope_s(PD_x0)) {
-			// PD_x0 случайная точка с положительными координатами вне базового многогранника
-			// Vector_Copy(PD_x0, PD_apexPoint);
-			ApexPoint(PD_x0, PD_apexPoint); // Удалить
+			Vector_Copy(PD_x0, PD_apexPoint);
+			ApexPoint(PD_x0, PD_apexPoint);
 #ifdef PP_DEBUG
 			cout << "Apex point:\t";
 			for (int j = 0; j < PF_MIN(PP_OUTPUT_LIMIT, PD_n); j++)
@@ -621,7 +620,7 @@ void PC_bsf_JobDispatcher(
 #endif
 				/*end debug*/
 
-				/*debug8**
+				/*debug8*/
 				if (fabs(ObjF(parameter->x) - PP_EXACT_OBJ_VALUE) <= PP_EPS_OBJ) {
 					Vector_Copy(parameter->x, PD_u);
 					PD_objF_u = ObjF(parameter->x);
@@ -709,7 +708,7 @@ void PC_bsf_JobDispatcher(
 
 		//WriteTrace(PD_u);
 
-		/*debug8**
+		/*debug8*/
 		if (fabs(PD_objF_u - PP_EXACT_OBJ_VALUE) <= PP_EPS_OBJ) {
 		*exit = true;
 			return;
@@ -1697,7 +1696,7 @@ inline void SkipComments(FILE* stream) {
 		fgetpos(stream, &pos);
 	};
 	fsetpos(stream, &pos);
-};
+}
 
 inline void SortObjVarI() { // Sorting objective variables in absolute descending order
 	PT_float_T bigestAbsVal;
@@ -1884,7 +1883,7 @@ inline void ApexPoint(PT_vector_T innerPont, PT_vector_T apexPoint) {
 		if (fabs(PD_b[i] - a_dot_innerPoint) < PP_EPS_ZERO_COMPARE)
 			continue;
 		cFactor = (PD_b[i] - a_dot_innerPoint) / a_dot_c;
-//		assert(cFactor > -PP_EPS_ZERO_COMPARE * 10);
+//		assert(cFactor > -(PP_EPS_ZERO_COMPARE) * 100);
 		max_cDistance = PF_MAX(max_cDistance, cFactor);
 	}
 	Vector_MultiplyByNumber(c_stripped, max_cDistance, PD_direction);

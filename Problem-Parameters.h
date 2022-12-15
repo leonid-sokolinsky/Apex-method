@@ -384,9 +384,9 @@ This source code has been produced with using BSF-skeleton
 #define PP_MODE_USE_LCV_VARIABLE	false	// utilize low cost and zero variables
 //------------------------------------------------------------------/**/
 
-/**/#define PP_PROBLEM_NAME		"dataset" //==========================================
-#define PP_M 4		// Number of equations (number of rows in *.mtx)
-#define PP_N 7		// Number of variables (number of cols in *.mtx)
+/**#define PP_PROBLEM_NAME		"dataset" //==========================================
+#define PP_M 10		// Number of equations (number of rows in *.mtx)
+#define PP_N 13		// Number of variables (number of cols in *.mtx)
 //------------------------------------------------------------------
 #define EPS							1E-8
 #define PP_EPS_DIR_LENGTH			EPS		// Minimal Length of Direction Vector
@@ -394,12 +394,33 @@ This source code has been produced with using BSF-skeleton
 #define PP_EPS_SHIFT				EPS		// Minimal shift to stop motion
 #define PP_EPS_ZERO_COMPARE			EPS		// Zero comparison precision
 #define PP_EPS_ZERO_DIR				1E-5	// Accuracy of zero value for determining direction vector coordinates
-#define PP_EXACT_OBJ_VALUE			50000	// Exact maximum value of objective function
+#define PP_EXACT_OBJ_VALUE		53305.1775	// Exact maximum value of objective function
 #define PP_INFINITY					1E+308	// Highest bound in *_hi.mtx
-#define PP_SIGMA_TO_APEX			2000	// Distance from apex base to apex point
-#define PP_LOW_COST_PERCENTILE		0.01	// Percentile for low cost variable (must be in [0,1])
+#define PP_SIGMA_TO_APEX			0	// Distance from apex base to apex point
+#define PP_LOW_COST_PERCENTILE		0	// Percentile for low cost variable (must be in [0,1])
 #define PP_GAP						1E-2	// Maximum gap from polytope surface (not too small!!!)
 #define PP_OBJECTIVE_VECTOR_LENGTH	0.1		// Length of Objective Vector
+#define PP_START_SHIFT_LENGTH		5		// Start length of shift vector
+#define PP_MODE_BLOCK_HCV_VARIABLE	true	// block high cost variables
+#define PP_MODE_USE_LCV_VARIABLE	false	// utilize low cost and zero variables
+//------------------------------------------------------------------/**/
+
+/**/#define PP_PROBLEM_NAME		"dataset2" //==========================================
+#define PP_M 10		// Number of equations (number of rows in *.mtx)
+#define PP_N 13		// Number of variables (number of cols in *.mtx)
+//------------------------------------------------------------------
+#define EPS							1E-9
+#define PP_EPS_DIR_LENGTH			EPS		// Minimal Length of Direction Vector
+#define PP_EPS_OBJ					1E-4	// |F(u) - PP_EXACT_OBJ_VALUE| <= PP_EPS_OBJ
+#define PP_EPS_SHIFT				EPS		// Minimal shift to stop motion
+#define PP_EPS_ZERO_COMPARE			EPS		// Zero comparison precision
+#define PP_EPS_ZERO_DIR				1E-9	// Accuracy of zero value for determining direction vector coordinates
+#define PP_EXACT_OBJ_VALUE			51181	// Exact maximum value of objective function
+#define PP_INFINITY					1E+308	// Highest bound in *_hi.mtx
+#define PP_SIGMA_TO_APEX			100		// Distance from apex base to apex point
+#define PP_LOW_COST_PERCENTILE		0		// Percentile for low cost variable (must be in [0,1])
+#define PP_GAP						1E-1	// Maximum gap from polytope surface (not too small!!!)
+#define PP_OBJECTIVE_VECTOR_LENGTH	1		// Length of Objective Vector
 #define PP_START_SHIFT_LENGTH		5		// Start length of shift vector
 #define PP_MODE_BLOCK_HCV_VARIABLE	true	// block high cost variables
 #define PP_MODE_USE_LCV_VARIABLE	false	// utilize low cost and zero variables
@@ -413,7 +434,6 @@ This source code has been produced with using BSF-skeleton
 #define PP_OUTPUT_LIMIT	8	// Number of Elements to output
 //#define PP_MATRIX_OUTPUT	// To output Matrix
 #define PP_SETW 18
-//
 //------------------------- Matrix format ----------------
 #define PP_MTX_PREFIX			"lp_"
 #define PP_MTX_POSTFIX_A		".mtx"
