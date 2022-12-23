@@ -32,7 +32,7 @@ static PT_vector_T PD_u;					// Base point on Polytope
 static PT_vector_T PD_direction;			// Unit vector to set shift direction
 static PT_vector_T PD_hi;					// Higher bound
 static PT_vector_T PD_lo;					// Lower bound
-static PT_vector_T PD_unitObjVector;		// = c/||c||
+static PT_vector_T PD_e_c;					// e_c = c/||c||
 static PT_vector_T PD_objVector;			// = PD_unitObjectiveVector * PP_OBJECTIVE_VECTOR_LENGTH
 static int PD_objI[PP_N];					// Index of objective variables in absolute descending order
 //========================== Input/Output ====================================

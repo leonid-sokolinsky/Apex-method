@@ -195,7 +195,7 @@ This source code has been produced with using BSF-skeleton
 #define PP_MODE_USE_LCV_VARIABLE	false	// utilize low cost and zero variables
 //------------------------------------------------------------------/**/
 
-/**#define PP_PROBLEM_NAME		"share2b" //==========================================
+/**/#define PP_PROBLEM_NAME		"share2b" //==========================================
 #define PP_M 96		// Number of equations (number of rows in *.mtx)
 #define PP_N 162	// Number of variables (number of cols in *.mtx)
 //------------------------------------------------------------------
@@ -405,7 +405,7 @@ This source code has been produced with using BSF-skeleton
 #define PP_MODE_USE_LCV_VARIABLE	false	// utilize low cost and zero variables
 //------------------------------------------------------------------/**/
 
-/**/#define PP_PROBLEM_NAME		"dataset2" //==========================================
+/**#define PP_PROBLEM_NAME		"dataset2" //==========================================
 #define PP_M 10		// Number of equations (number of rows in *.mtx)
 #define PP_N 13		// Number of variables (number of cols in *.mtx)
 //------------------------------------------------------------------

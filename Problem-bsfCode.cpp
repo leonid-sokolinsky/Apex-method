@@ -65,7 +65,7 @@ void PC_bsf_Init(bool* success) {
 	}
 
 	MakeObjVector(PD_c, PD_objVector);
-	UnitObjVector(PD_unitObjVector);
+	UnitObjVector(PD_e_c);
 }
 
 void PC_bsf_SetListSize(int* listSize) {
@@ -1840,8 +1840,8 @@ inline void DetermineDirection(PT_bsf_parameter_T* parameter, bool* exit, bool* 
 			assert(PD_m <= PP_MM);
 			PD_numDetDir = 0;
 			PD_indexToBlock++;
-			ShrinkUnitVector(PD_unitObjVector, PD_indexToBlock);
-			Vector_MultiplyByNumber(PD_unitObjVector, PP_OBJECTIVE_VECTOR_LENGTH, PD_objVector);
+			ShrinkUnitVector(PD_e_c, PD_indexToBlock);
+			Vector_MultiplyByNumber(PD_e_c, PP_OBJECTIVE_VECTOR_LENGTH, PD_objVector);
 #ifdef PP_DEBUG
 			cout << "Variable " << PD_indexToBlock - 1 << " is blocked.\n";
 #endif
@@ -1888,6 +1888,6 @@ inline void ApexPoint(PT_vector_T innerPont, PT_vector_T apexPoint) {
 	}
 	Vector_MultiplyByNumber(c_stripped, max_cDistance, PD_direction);
 	Vector_Addition(innerPont, PD_direction, apexBase);
-	Vector_MultiplyByNumber(PD_unitObjVector, PP_SIGMA_TO_APEX, PD_direction);
+	Vector_MultiplyByNumber(PD_e_c, PP_SIGMA_TO_APEX, PD_direction);
 	Vector_Addition(apexBase, PD_direction, apexPoint);
 }
