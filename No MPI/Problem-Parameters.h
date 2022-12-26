@@ -23,7 +23,7 @@ This source code has been produced with using BSF-skeleton
 #define PP_EPS_ZERO_DIR				1E-5	// Accuracy of zero value for direction vector coordinates for direction vector coordinates
 #define PP_EXACT_OBJ_VALUE		464.7531	// Exact maximum value of objective function
 #define PP_INFINITY					1E+308	// High bound in *_hi.mtx
-#define PP_SIGMA_TO_APEX			15500	// Distance from apex base to apex point
+#define PP_ETA_TO_APEX				15500	// Distance from apex base to apex point
 #define PP_LOW_COST_PERCENTILE		0.1		// Percentile for low cost variable (must be in [0,1])
 #define PP_GAP						1E-4	// Maximum gap from polytope surface (not too small!!!)
 #define PP_OBJECTIVE_VECTOR_LENGTH	100		// Length of Objective Vector
@@ -44,7 +44,7 @@ This source code has been produced with using BSF-skeleton
 #define PP_EPS_ZERO_DIR				1E-5	// Accuracy of zero value for direction vector coordinates
 #define PP_EXACT_OBJ_VALUE		-225494.963	// Exact maximum value of objective function
 #define PP_INFINITY					1E+308	// High bound in *_hi.mtx
-#define PP_SIGMA_TO_APEX			450	// Distance from apex base to apex point
+#define PP_ETA_TO_APEX				450	// Distance from apex base to apex point
 #define PP_GAP						0.2		// Minimum distance to polytope (not too small!!!)
 #define PP_LOW_COST_PERCENTILE		0.2		// Percentile for low cost variable (must be in [0,1])
 #define PP_OBJECTIVE_VECTOR_LENGTH	0.1		// Length of Objective Vector
@@ -65,7 +65,7 @@ This source code has been produced with using BSF-skeleton
 #define PP_EPS_ZERO_DIR				1E-5	// Accuracy of zero value for direction vector coordinates
 #define PP_EXACT_OBJ_VALUE			30.812	// Exact maximum value of objective function
 #define PP_INFINITY					1E+308	// Highest bound in *_hi.mtx
-#define PP_SIGMA_TO_APEX			40		// Distance from apex base to apex point
+#define PP_ETA_TO_APEX				40		// Distance from apex base to apex point
 #define PP_GAP						0.2		// Minimum distance to polytope (not too small!!!)
 #define PP_LOW_COST_PERCENTILE		0	// Percentile for low cost variable (must be in [0,1))
 #define PP_OBJECTIVE_VECTOR_LENGTH	0.1		// Length of Objective Vector
@@ -86,7 +86,7 @@ This source code has been produced with using BSF-skeleton
 #define PP_EPS_ZERO_DIR				EPS		// Accuracy of zero value for direction vector coordinates
 #define PP_EXACT_OBJ_VALUE			9146.378// Exact maximum value of objective function
 #define PP_INFINITY					1E+308	// Highest bound in *_hi.mtx
-#define PP_SIGMA_TO_APEX			0		// Distance from apex base to apex point
+#define PP_ETA_TO_APEX				0		// Distance from apex base to apex point
 #define PP_GAP						1E-2	// Minimum distance to polytope (not too small!!!)
 #define PP_LOW_COST_PERCENTILE		0.005		// Percentile for low cost variable (must be in [0,1])
 #define PP_OBJECTIVE_VECTOR_LENGTH	0.1		// Length of Objective Vector
@@ -106,7 +106,7 @@ This source code has been produced with using BSF-skeleton
 #define PP_EPS_ZERO_DIR				1E-5	// Accuracy of zero value for direction vector coordinates
 #define PP_EXACT_OBJ_VALUE			1749.9	// <-- Exact maximum value of objective function
 #define PP_INFINITY					1E+308	// Highest bound in *_hi.mtx
-#define PP_SIGMA_TO_APEX			1E+7	// Distance from apex base to apex point
+#define PP_ETA_TO_APEX				1E+7	// Distance from apex base to apex point
 #define PP_GAP						0.2		// Minimum distance to polytope (not too small!!!)
 #define PP_LOW_COST_PERCENTILE		0		// Percentile for low cost variable (must be in [0,1])
 #define PP_OBJECTIVE_VECTOR_LENGTH	0.01	// Length of Objective Vector
@@ -126,7 +126,7 @@ This source code has been produced with using BSF-skeleton
 #define PP_EPS_ZERO_DIR				1E-5	// Accuracy of zero value for direction vector coordinates
 #define PP_EXACT_OBJ_VALUE			266.61	// <-- Exact maximum value of objective function
 #define PP_INFINITY					1E+308	// Highest bound in *_hi.mtx
-#define PP_SIGMA_TO_APEX			1000	// Distance from apex base to apex point
+#define PP_ETA_TO_APEX				1000	// Distance from apex base to apex point
 #define PP_GAP						0.2		// Minimum distance to polytope (not too small!!!)
 #define PP_LOW_COST_PERCENTILE		0.001	// Percentile for low cost variable (must be in [0,1])
 #define PP_OBJECTIVE_VECTOR_LENGTH	100		// Length of Objective Vector
@@ -146,7 +146,7 @@ This source code has been produced with using BSF-skeleton
 #define PP_EPS_ZERO_DIR				1E-8	// Accuracy of zero value for direction vector coordinates
 #define PP_EXACT_OBJ_VALUE			64.575	// <-- Exact maximum value of objective function
 #define PP_INFINITY					1E+308	// Highest bound in *_hi.mtx
-#define PP_SIGMA_TO_APEX			50000	// Distance from apex base to apex point
+#define PP_ETA_TO_APEX				50000	// Distance from apex base to apex point
 #define PP_GAP						0.2		// Minimum distance to polytope (not too small!!!)
 #define PP_LOW_COST_PERCENTILE		0		// Percentile for low cost variable (must be in [0,1])
 #define PP_OBJECTIVE_VECTOR_LENGTH	0.01	// Length of Objective Vector
@@ -166,7 +166,7 @@ This source code has been produced with using BSF-skeleton
 #define PP_EPS_ZERO_DIR				1E-8	// Accuracy of zero value for direction vector coordinates
 #define PP_EXACT_OBJ_VALUE			70		// <-- Exact maximum value of objective function
 #define PP_INFINITY					1E+308	// Highest bound in *_hi.mtx
-#define PP_SIGMA_TO_APEX			1E+6	// Distance from apex base to apex point
+#define PP_ETA_TO_APEX				1E+6	// Distance from apex base to apex point
 #define PP_GAP						0.2		// Minimum distance to polytope (not too small!!!)
 #define PP_LOW_COST_PERCENTILE		0		// Percentile for low cost variable (must be in [0,1])
 #define PP_OBJECTIVE_VECTOR_LENGTH	0.01	// Length of Objective Vector
@@ -186,7 +186,7 @@ This source code has been produced with using BSF-skeleton
 #define PP_EPS_ZERO_DIR				1E-8	// Accuracy of zero value for direction vector coordinates
 #define PP_EXACT_OBJ_VALUE			52.202	// <------------ Exact maximum value of objective function
 #define PP_INFINITY					1E+308	// Highest bound in *_hi.mtx
-#define PP_SIGMA_TO_APEX			130000	// Distance from apex base to apex point
+#define PP_ETA_TO_APEX				130000	// Distance from apex base to apex point
 #define PP_GAP						0.0001	// Minimum distance to polytope (not too small!!!)
 #define PP_LOW_COST_PERCENTILE		0		// Percentile for low cost variable (must be in [0,1])
 #define PP_OBJECTIVE_VECTOR_LENGTH	0.0001	// Length of Objective Vector
@@ -207,7 +207,7 @@ This source code has been produced with using BSF-skeleton
 #define PP_EPS_ZERO_DIR				1E-5	// Accuracy of zero value for direction vector coordinates
 #define PP_EXACT_OBJ_VALUE			415.73	// <-- Exact maximum value of objective function
 #define PP_INFINITY					1E+308	// Highest bound in *_hi.mtx
-#define PP_SIGMA_TO_APEX			100		// Distance from apex base to apex point
+#define PP_ETA_TO_APEX				100		// Distance from apex base to apex point
 #define PP_GAP						0.2		// Minimum distance to polytope (not too small!!!)
 #define PP_LOW_COST_PERCENTILE		0		// Percentile for low cost variable (must be in [0,1])
 #define PP_OBJECTIVE_VECTOR_LENGTH	0.01	// Length of Objective Vector
@@ -216,7 +216,7 @@ This source code has been produced with using BSF-skeleton
 #define PP_MODE_USE_LCV_VARIABLE	false	// utilize low cost and zero variables
 //------------------------------------------------------------------/**/
 
-/**#define PP_PROBLEM_NAME		"simple1" //==========================================
+/**/#define PP_PROBLEM_NAME		"simple1" //==========================================
 #define PP_M 4		// Number of equations (number of rows in *.mtx)
 #define PP_N 7		// Number of variables (number of cols in *.mtx)
 //------------------------------------------------------------------
@@ -228,7 +228,7 @@ This source code has been produced with using BSF-skeleton
 #define PP_EPS_ZERO_DIR				EPS		// Accuracy of zero value for direction vector coordinates for direction vector coordinates
 #define PP_EXACT_OBJ_VALUE			55000	// Exact maximum value of objective function
 #define PP_INFINITY					1E+308	// Highest bound in *_hi.mtx
-#define PP_SIGMA_TO_APEX			0		// Distance from apex base to apex point
+#define PP_ETA_TO_APEX				0		// Distance from apex base to apex point
 #define PP_LOW_COST_PERCENTILE		0		// Percentile for low cost variable (must be in [0,1])
 #define PP_GAP						1E-2	// Maximum gap from polytope surface (not too small!!!)
 #define PP_OBJECTIVE_VECTOR_LENGTH	0.1		// Length of Objective Vector
@@ -249,7 +249,7 @@ This source code has been produced with using BSF-skeleton
 #define PP_EPS_ZERO_DIR				EPS		// Accuracy of zero value for direction vector coordinates for direction vector coordinates
 #define PP_EXACT_OBJ_VALUE			40000	// Exact maximum value of objective function
 #define PP_INFINITY					1E+308	// Highest bound in *_hi.mtx
-#define PP_SIGMA_TO_APEX			0		// Distance from apex base to apex point
+#define PP_ETA_TO_APEX				0		// Distance from apex base to apex point
 #define PP_LOW_COST_PERCENTILE		0		// Percentile for low cost variable (must be in [0,1])
 #define PP_GAP						1E-2	// Maximum gap from polytope surface (not too small!!!)
 #define PP_OBJECTIVE_VECTOR_LENGTH	0.1		// Length of Objective Vector
@@ -270,7 +270,7 @@ This source code has been produced with using BSF-skeleton
 #define PP_EPS_ZERO_DIR				EPS		// Accuracy of zero value for direction vector coordinates for direction vector coordinates
 #define PP_EXACT_OBJ_VALUE			59000	// Exact maximum value of objective function
 #define PP_INFINITY					1E+308	// Highest bound in *_hi.mtx
-#define PP_SIGMA_TO_APEX			2500	// Distance from apex base to apex point
+#define PP_ETA_TO_APEX				2500	// Distance from apex base to apex point
 #define PP_LOW_COST_PERCENTILE		0		// Percentile for low cost variable (must be in [0,1])
 #define PP_GAP						1E-2	// Maximum gap from polytope surface (not too small!!!)
 #define PP_OBJECTIVE_VECTOR_LENGTH	0.1		// Length of Objective Vector
@@ -291,7 +291,7 @@ This source code has been produced with using BSF-skeleton
 #define PP_EPS_ZERO_DIR				EPS		// Accuracy of zero value for direction vector coordinates for direction vector coordinates
 #define PP_EXACT_OBJ_VALUE			60000	// Exact maximum value of objective function
 #define PP_INFINITY					1E+308	// Highest bound in *_hi.mtx
-#define PP_SIGMA_TO_APEX			0	// Distance from apex base to apex point
+#define PP_ETA_TO_APEX				0	// Distance from apex base to apex point
 #define PP_LOW_COST_PERCENTILE		0		// Percentile for low cost variable (must be in [0,1])
 #define PP_GAP						1E-2	// Maximum gap from polytope surface (not too small!!!)
 #define PP_OBJECTIVE_VECTOR_LENGTH	0.1		// Length of Objective Vector
@@ -312,7 +312,7 @@ This source code has been produced with using BSF-skeleton
 #define PP_EPS_ZERO_DIR				1E-5	// Accuracy of zero value for direction vector coordinates for direction vector coordinates
 #define PP_EXACT_OBJ_VALUE			-5000	// Exact maximum value of objective function
 #define PP_INFINITY					1E+308	// Highest bound in *_hi.mtx
-#define PP_SIGMA_TO_APEX			500		// Distance from apex base to apex point
+#define PP_ETA_TO_APEX				500		// Distance from apex base to apex point
 #define PP_LOW_COST_PERCENTILE		0		// Percentile for low cost variable (must be in [0,1])
 #define PP_GAP						1E-2	// Maximum gap from polytope surface (not too small!!!)
 #define PP_OBJECTIVE_VECTOR_LENGTH	0.1		// Length of Objective Vector
@@ -333,7 +333,7 @@ This source code has been produced with using BSF-skeleton
 #define PP_EPS_ZERO_DIR				1E-5	// Accuracy of zero value for determining direction vector coordinates
 #define PP_EXACT_OBJ_VALUE			50000	// Exact maximum value of objective function
 #define PP_INFINITY					1E+308	// Highest bound in *_hi.mtx
-#define PP_SIGMA_TO_APEX			1600	// Distance from apex base to apex point
+#define PP_ETA_TO_APEX				1600	// Distance from apex base to apex point
 #define PP_LOW_COST_PERCENTILE		0		// Percentile for low cost variable (must be in [0,1])
 #define PP_GAP						1E-2	// Maximum gap from polytope surface (not too small!!!)
 #define PP_OBJECTIVE_VECTOR_LENGTH	1		// Length of Objective Vector
@@ -354,7 +354,7 @@ This source code has been produced with using BSF-skeleton
 #define PP_EPS_ZERO_DIR				1E-5	// Accuracy of zero value for determining direction vector coordinates
 #define PP_EXACT_OBJ_VALUE			50000.2	// Exact maximum value of objective function
 #define PP_INFINITY					1E+308	// Highest bound in *_hi.mtx
-#define PP_SIGMA_TO_APEX			2000		// Distance from apex base to apex point
+#define PP_ETA_TO_APEX				2000		// Distance from apex base to apex point
 #define PP_LOW_COST_PERCENTILE		0.01	// Percentile for low cost variable (must be in [0,1])
 #define PP_GAP						1E-2	// Maximum gap from polytope surface (not too small!!!)
 #define PP_OBJECTIVE_VECTOR_LENGTH	0.1		// Length of Objective Vector
@@ -375,7 +375,7 @@ This source code has been produced with using BSF-skeleton
 #define PP_EPS_ZERO_DIR				1E-5	// Accuracy of zero value for determining direction vector coordinates
 #define PP_EXACT_OBJ_VALUE			50000	// Exact maximum value of objective function
 #define PP_INFINITY					1E+308	// Highest bound in *_hi.mtx
-#define PP_SIGMA_TO_APEX			2000	// Distance from apex base to apex point
+#define PP_ETA_TO_APEX				2000	// Distance from apex base to apex point
 #define PP_LOW_COST_PERCENTILE		0.01	// Percentile for low cost variable (must be in [0,1])
 #define PP_GAP						1E-2	// Maximum gap from polytope surface (not too small!!!)
 #define PP_OBJECTIVE_VECTOR_LENGTH	0.1		// Length of Objective Vector
@@ -396,7 +396,7 @@ This source code has been produced with using BSF-skeleton
 #define PP_EPS_ZERO_DIR				1E-5	// Accuracy of zero value for determining direction vector coordinates
 #define PP_EXACT_OBJ_VALUE		53305.1775	// Exact maximum value of objective function
 #define PP_INFINITY					1E+308	// Highest bound in *_hi.mtx
-#define PP_SIGMA_TO_APEX			0	// Distance from apex base to apex point
+#define PP_ETA_TO_APEX				0	// Distance from apex base to apex point
 #define PP_LOW_COST_PERCENTILE		0	// Percentile for low cost variable (must be in [0,1])
 #define PP_GAP						1E-2	// Maximum gap from polytope surface (not too small!!!)
 #define PP_OBJECTIVE_VECTOR_LENGTH	0.1		// Length of Objective Vector
@@ -405,7 +405,7 @@ This source code has been produced with using BSF-skeleton
 #define PP_MODE_USE_LCV_VARIABLE	false	// utilize low cost and zero variables
 //------------------------------------------------------------------/**/
 
-/**/#define PP_PROBLEM_NAME		"dataset2" //==========================================
+/**#define PP_PROBLEM_NAME		"dataset2" //==========================================
 #define PP_M 10		// Number of equations (number of rows in *.mtx)
 #define PP_N 13		// Number of variables (number of cols in *.mtx)
 //------------------------------------------------------------------
@@ -417,7 +417,7 @@ This source code has been produced with using BSF-skeleton
 #define PP_EPS_ZERO_DIR				1E-9	// Accuracy of zero value for determining direction vector coordinates
 #define PP_EXACT_OBJ_VALUE			51181	// Exact maximum value of objective function
 #define PP_INFINITY					1E+308	// Highest bound in *_hi.mtx
-#define PP_SIGMA_TO_APEX			100		// Distance from apex base to apex point
+#define PP_ETA_TO_APEX				100		// Distance from apex base to apex point
 #define PP_LOW_COST_PERCENTILE		0		// Percentile for low cost variable (must be in [0,1])
 #define PP_GAP						1E-1	// Maximum gap from polytope surface (not too small!!!)
 #define PP_OBJECTIVE_VECTOR_LENGTH	1		// Length of Objective Vector

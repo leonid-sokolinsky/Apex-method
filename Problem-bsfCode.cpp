@@ -292,7 +292,7 @@ void PC_bsf_JobDispatcher(
 			return;
 		}
 
-		/*debug2*
+		/*debug2**
 		SavePoint(parameter->x, x0_File, t);
 		cout << "==================> F(t) = " << setw(PP_SETW) << ObjF(parameter->x) << endl;
 		*exit = true;
@@ -307,13 +307,13 @@ void PC_bsf_JobDispatcher(
 		if (PP_OUTPUT_LIMIT < PD_n) cout << " ...";
 		cout << "\tF(t) = " << setw(PP_SETW) << ObjF(parameter->x) << endl;
 #endif
+		Vector_Copy(parameter->x, PD_u);
+		PD_objF_u = ObjF(PD_u);
+
 		/*debug3**
 		*exit = true;
 		return;
 		/*end debug*/
-
-		Vector_Copy(parameter->x, PD_u);
-		PD_objF_u = ObjF(PD_u);
 
 		// Preparations for determining direction
 		Vector_PlusEquals(parameter->x, PD_objVector);
@@ -783,7 +783,7 @@ void PC_bsf_ParametersOutput(PT_bsf_parameter_T parameter) {
 	cout << "Eps Shift:\t\t" << PP_EPS_SHIFT << endl;
 	cout << "Eps Zero Direction:\t" << PP_EPS_ZERO_DIR << endl;
 	cout << "Exact Obj Value:\t" << PP_EXACT_OBJ_VALUE << endl;
-	cout << "Sigma to Apex:\t\t" << PP_SIGMA_TO_APEX << endl;
+	cout << "Eta to Apex:\t\t" << PP_ETA_TO_APEX << endl;
 	cout << "Low Cost Percentile:\t" << PP_LOW_COST_PERCENTILE << endl;
 	cout << "Gap Max:\t\t" << PP_GAP << endl;
 	cout << "Obj Vector Length:\t" << PP_OBJECTIVE_VECTOR_LENGTH << endl;
@@ -1863,31 +1863,55 @@ inline double ProblemScale() {
 }
 
 inline void ApexPoint(PT_vector_T innerPont, PT_vector_T apexPoint) {
-	PT_float_T a_dot_c, a_dot_innerPoint;
+	PT_float_T a_dot_e_c, a_dot_innerPoint;
 	PT_float_T max_cDistance = 0;
 	PT_float_T cFactor;
-	PT_vector_T apexBase;
-	PT_vector_T c_stripped;
+	PT_vector_T e_c_stripped;
 
 	for (int j = 0; j < PD_n; j++)
-		if (fabs(PD_c[PD_objI[j]]) / fabs(PD_c[PD_objI[0]]) > PP_LOW_COST_PERCENTILE)
-			c_stripped[PD_objI[j]] = PD_c[PD_objI[j]];
+		if (fabs(PD_e_c[PD_objI[j]]) / fabs(PD_e_c[PD_objI[0]]) > PP_LOW_COST_PERCENTILE)
+			e_c_stripped[PD_objI[j]] = PD_e_c[PD_objI[j]];
 		else
-			c_stripped[PD_objI[j]] = 0;
+			e_c_stripped[PD_objI[j]] = 0;
 
 	for (int i = 0; i < PD_m; i++) {
-		a_dot_c = Vector_DotProduct(PD_A[i],c_stripped);
-		if (a_dot_c < PP_EPS_ZERO_COMPARE)
+		a_dot_e_c = Vector_DotProduct(PD_A[i], e_c_stripped);
+		if (a_dot_e_c < PP_EPS_ZERO_COMPARE) // not recessive!
 			continue;
 		a_dot_innerPoint = Vector_DotProduct(PD_A[i], innerPont);
-		if (fabs(PD_b[i] - a_dot_innerPoint) < PP_EPS_ZERO_COMPARE)
-			continue;
-		cFactor = (PD_b[i] - a_dot_innerPoint) / a_dot_c;
-//		assert(cFactor > -(PP_EPS_ZERO_COMPARE) * 100);
+		cFactor = (PD_b[i] - a_dot_innerPoint) / a_dot_e_c;
+		assert(cFactor > -PP_EPS_ZERO_COMPARE);
 		max_cDistance = PF_MAX(max_cDistance, cFactor);
 	}
-	Vector_MultiplyByNumber(c_stripped, max_cDistance, PD_direction);
-	Vector_Addition(innerPont, PD_direction, apexBase);
-	Vector_MultiplyByNumber(PD_e_c, PP_SIGMA_TO_APEX, PD_direction);
-	Vector_Addition(apexBase, PD_direction, apexPoint);
+	max_cDistance += PP_ETA_TO_APEX;
+	Vector_MultiplyByNumber(e_c_stripped, max_cDistance, PD_direction);
+	Vector_Addition(innerPont, PD_direction, apexPoint);
 }
+
+//
+//
+//
+//
+//
+
+//
+//
+//
+//
+//
+//
+
+//
+//
+//
+//
+//
+
+//
+//
+//
+//
+//
+//
+//
+//
