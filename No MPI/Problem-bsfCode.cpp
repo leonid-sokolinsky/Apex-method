@@ -1657,7 +1657,7 @@ inline void ShrinkUnitVector(PT_vector_T objUnitVector, int shrinkBound) { // Sh
 	Vector_DivideEquals(objUnitVector, norm);
 }
 
-inline void MakeObjVector(PT_vector_T c, PT_vector_T objVector) { // Calculating Objective Vector
+inline void MakeObjVector(PT_vector_T c, PT_vector_T objVector) { // Calculating Objective Vector with length of PP_OBJECTIVE_VECTOR_LENGTH
 	double c_norm = Vector_Norm(c);
 	Vector_MultiplyByNumber(c, PP_OBJECTIVE_VECTOR_LENGTH / c_norm, objVector);
 }

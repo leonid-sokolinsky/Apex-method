@@ -8,7 +8,7 @@ This source code has been produced with using BSF-skeleton
 ==============================================================================*/
 //-------------------------- Compilation Modes -----------------------
 #define PP_DEBUG
-#define PP_PATH "D:/OneDrive/_private/Программы/BSF/BSF Target/Problems/"
+#define PP_PATH "D:/YandexDisk/_private/Программы/BSF/BSF Target/Problems/"
 //#define PP_PATH "Problems/"
 //=========================== Problem Parameters =========================
 /**#define PP_PROBLEM_NAME		"afiro"		 //========

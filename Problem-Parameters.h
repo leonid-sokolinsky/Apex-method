@@ -8,10 +8,10 @@ This source code has been produced with using BSF-skeleton
 ==============================================================================*/
 //-------------------------- Compilation Modes -----------------------
 #define PP_DEBUG
-#define PP_PATH "D:/OneDrive/_private/Программы/BSF/BSF Target/Problems/"
+#define PP_PATH "D:/YandexDisk/_private/Программы/BSF/BSF Target/Problems/"
 //#define PP_PATH "Problems/"
 //=========================== Problem Parameters =========================
-/**/#define PP_PROBLEM_NAME		"afiro"		 //========
+/**#define PP_PROBLEM_NAME		"afiro"		 //========
 #define PP_M 27		// Number of equations (number of rows in *.mtx)
 #define PP_N 51		// Number of variables (number of cols in *.mtx)
 //------------------------------------------------------------------
@@ -217,7 +217,7 @@ This source code has been produced with using BSF-skeleton
 #define PP_MODE_USE_LCV_VARIABLE	false	// utilize low cost and zero variables
 //------------------------------------------------------------------/**/
 
-/**#define PP_PROBLEM_NAME		"simple1" //==========================================
+/**/#define PP_PROBLEM_NAME		"simple1" //==========================================
 #define PP_M 4		// Number of equations (number of rows in *.mtx)
 #define PP_N 7		// Number of variables (number of cols in *.mtx)
 //------------------------------------------------------------------
