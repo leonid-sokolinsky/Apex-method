@@ -28,8 +28,8 @@ This source code has been produced with using BSF-skeleton
 #define PP_GAP						1E-4	// Maximum gap from polytope surface (not too small!!!)
 #define PP_OBJECTIVE_VECTOR_LENGTH	100		// Length of Objective Vector
 #define PP_START_SHIFT_LENGTH		20		// Start length of shift vector
-#define PP_MODE_BLOCK_HCV_VARIABLE	false	// block high cost variables
-#define PP_MODE_USE_LCV_VARIABLE	false	// utilize low cost and zero variables
+#define PP_MODE_BLOCK_HCV_VARIABLE	false	// To block high cost variables
+#define PP_MODE_USE_LCV_VARIABLE	false	// To utilize low cost and zero variables
 //------------------------------------------------------------------/**/
 
 /**#define PP_PROBLEM_NAME		"adlittle"	//========
@@ -49,8 +49,8 @@ This source code has been produced with using BSF-skeleton
 #define PP_LOW_COST_PERCENTILE		0.2		// Percentile for low cost variable (must be in [0,1])
 #define PP_OBJECTIVE_VECTOR_LENGTH	0.1		// Length of Objective Vector
 #define PP_START_SHIFT_LENGTH		1		// Start length of shift vector
-#define PP_MODE_BLOCK_HCV_VARIABLE	false	// block high cost variables
-#define PP_MODE_USE_LCV_VARIABLE	false	// utilize low cost and zero variables
+#define PP_MODE_BLOCK_HCV_VARIABLE	false	// To block high cost variables
+#define PP_MODE_USE_LCV_VARIABLE	false	// To utilize low cost and zero variables
 //------------------------------------------------------------------/**/
 
 /**#define PP_PROBLEM_NAME		"blend"	//==========================================
@@ -70,8 +70,8 @@ This source code has been produced with using BSF-skeleton
 #define PP_LOW_COST_PERCENTILE		0	// Percentile for low cost variable (must be in [0,1))
 #define PP_OBJECTIVE_VECTOR_LENGTH	0.1		// Length of Objective Vector
 #define PP_START_SHIFT_LENGTH		1		// Start length of shift vector
-#define PP_MODE_BLOCK_HCV_VARIABLE	false	// block high cost variables
-#define PP_MODE_USE_LCV_VARIABLE	false	// utilize low cost and zero variables
+#define PP_MODE_BLOCK_HCV_VARIABLE	false	// To block high cost variables
+#define PP_MODE_USE_LCV_VARIABLE	false	// To utilize low cost and zero variables
 //------------------------------------------------------------------/**/
 
 /**#define PP_PROBLEM_NAME		"fit1d"	//==========================================
@@ -91,8 +91,8 @@ This source code has been produced with using BSF-skeleton
 #define PP_LOW_COST_PERCENTILE		0.005		// Percentile for low cost variable (must be in [0,1])
 #define PP_OBJECTIVE_VECTOR_LENGTH	0.1		// Length of Objective Vector
 #define PP_START_SHIFT_LENGTH		0.1		// Start length of shift vector
-#define PP_MODE_BLOCK_HCV_VARIABLE	false	// block high cost variables
-#define PP_MODE_USE_LCV_VARIABLE	false	// utilize low cost and zero variables
+#define PP_MODE_BLOCK_HCV_VARIABLE	false	// To block high cost variables
+#define PP_MODE_USE_LCV_VARIABLE	false	// To utilize low cost and zero variables
 //------------------------------------------------------------------/**/
 
 /**#define PP_PROBLEM_NAME		"kb2"	//==========================================
@@ -111,8 +111,8 @@ This source code has been produced with using BSF-skeleton
 #define PP_LOW_COST_PERCENTILE		0		// Percentile for low cost variable (must be in [0,1])
 #define PP_OBJECTIVE_VECTOR_LENGTH	0.01	// Length of Objective Vector
 #define PP_START_SHIFT_LENGTH		1		// Start length of shift vector
-#define PP_MODE_BLOCK_HCV_VARIABLE	false	// block high cost variables
-#define PP_MODE_USE_LCV_VARIABLE	false	// utilize low cost and zero variables
+#define PP_MODE_BLOCK_HCV_VARIABLE	false	// To block high cost variables
+#define PP_MODE_USE_LCV_VARIABLE	false	// To utilize low cost and zero variables
 //------------------------------------------------------------------/**/
 
 /**#define PP_PROBLEM_NAME		"recipe"	//==========================================
@@ -131,8 +131,8 @@ This source code has been produced with using BSF-skeleton
 #define PP_LOW_COST_PERCENTILE		0.001	// Percentile for low cost variable (must be in [0,1])
 #define PP_OBJECTIVE_VECTOR_LENGTH	100		// Length of Objective Vector
 #define PP_START_SHIFT_LENGTH		1		// Start length of shift vector
-#define PP_MODE_BLOCK_HCV_VARIABLE	false	// block high cost variables
-#define PP_MODE_USE_LCV_VARIABLE	false	// utilize low cost and zero variables
+#define PP_MODE_BLOCK_HCV_VARIABLE	false	// To block high cost variables
+#define PP_MODE_USE_LCV_VARIABLE	false	// To utilize low cost and zero variables
 //------------------------------------------------------------------/**/
 
 /**#define PP_PROBLEM_NAME		"sc50a"	//==========================================
@@ -151,8 +151,8 @@ This source code has been produced with using BSF-skeleton
 #define PP_LOW_COST_PERCENTILE		0		// Percentile for low cost variable (must be in [0,1])
 #define PP_OBJECTIVE_VECTOR_LENGTH	0.01	// Length of Objective Vector
 #define PP_START_SHIFT_LENGTH		1		// Start length of shift vector
-#define PP_MODE_BLOCK_HCV_VARIABLE	false	// block high cost variables
-#define PP_MODE_USE_LCV_VARIABLE	false	// utilize low cost and zero variables
+#define PP_MODE_BLOCK_HCV_VARIABLE	false	// To block high cost variables
+#define PP_MODE_USE_LCV_VARIABLE	false	// To utilize low cost and zero variables
 //------------------------------------------------------------------/**/
 
 /**#define PP_PROBLEM_NAME		"sc50b"	//==========================================
@@ -171,8 +171,8 @@ This source code has been produced with using BSF-skeleton
 #define PP_LOW_COST_PERCENTILE		0		// Percentile for low cost variable (must be in [0,1])
 #define PP_OBJECTIVE_VECTOR_LENGTH	0.01	// Length of Objective Vector
 #define PP_START_SHIFT_LENGTH		1		// Start length of shift vector
-#define PP_MODE_BLOCK_HCV_VARIABLE	false	// block high cost variables
-#define PP_MODE_USE_LCV_VARIABLE	false	// utilize low cost and zero variables
+#define PP_MODE_BLOCK_HCV_VARIABLE	false	// To block high cost variables
+#define PP_MODE_USE_LCV_VARIABLE	false	// To utilize low cost and zero variables
 //------------------------------------------------------------------/**/
 
 /**#define PP_PROBLEM_NAME		"sc105"	//==========================================
@@ -191,8 +191,8 @@ This source code has been produced with using BSF-skeleton
 #define PP_LOW_COST_PERCENTILE		0		// Percentile for low cost variable (must be in [0,1])
 #define PP_OBJECTIVE_VECTOR_LENGTH	0.0001	// Length of Objective Vector
 #define PP_START_SHIFT_LENGTH		1		// Start length of shift vector
-#define PP_MODE_BLOCK_HCV_VARIABLE	false	// block high cost variables
-#define PP_MODE_USE_LCV_VARIABLE	false	// utilize low cost and zero variables
+#define PP_MODE_BLOCK_HCV_VARIABLE	false	// To block high cost variables
+#define PP_MODE_USE_LCV_VARIABLE	false	// To utilize low cost and zero variables
 //------------------------------------------------------------------/**/
 
 /**#define PP_PROBLEM_NAME		"share2b" //==========================================
@@ -212,8 +212,8 @@ This source code has been produced with using BSF-skeleton
 #define PP_LOW_COST_PERCENTILE		0		// Percentile for low cost variable (must be in [0,1])
 #define PP_OBJECTIVE_VECTOR_LENGTH	0.01	// Length of Objective Vector
 #define PP_START_SHIFT_LENGTH		1		// Start length of shift vector
-#define PP_MODE_BLOCK_HCV_VARIABLE	false	// block high cost variables
-#define PP_MODE_USE_LCV_VARIABLE	false	// utilize low cost and zero variables
+#define PP_MODE_BLOCK_HCV_VARIABLE	false	// To block high cost variables
+#define PP_MODE_USE_LCV_VARIABLE	false	// To utilize low cost and zero variables
 //------------------------------------------------------------------/**/
 
 /**/#define PP_PROBLEM_NAME		"simple1" //==========================================
@@ -233,8 +233,8 @@ This source code has been produced with using BSF-skeleton
 #define PP_GAP						1E-2	// Maximum gap from polytope surface (not too small!!!)
 #define PP_OBJECTIVE_VECTOR_LENGTH	0.1		// Length of Objective Vector
 #define PP_START_SHIFT_LENGTH		5		// Start length of shift vector
-#define PP_MODE_BLOCK_HCV_VARIABLE	true	// block high cost variables
-#define PP_MODE_USE_LCV_VARIABLE	false	// utilize low cost and zero variables
+#define PP_MODE_BLOCK_HCV_VARIABLE	true	// To block high cost variables
+#define PP_MODE_USE_LCV_VARIABLE	false	// To utilize low cost and zero variables
 //------------------------------------------------------------------/**/
 
 /**#define PP_PROBLEM_NAME		"simple1.1" //==========================================
@@ -254,8 +254,8 @@ This source code has been produced with using BSF-skeleton
 #define PP_GAP						1E-2	// Maximum gap from polytope surface (not too small!!!)
 #define PP_OBJECTIVE_VECTOR_LENGTH	0.1		// Length of Objective Vector
 #define PP_START_SHIFT_LENGTH		5		// Start length of shift vector
-#define PP_MODE_BLOCK_HCV_VARIABLE	true	// block high cost variables
-#define PP_MODE_USE_LCV_VARIABLE	false	// utilize low cost and zero variables
+#define PP_MODE_BLOCK_HCV_VARIABLE	true	// To block high cost variables
+#define PP_MODE_USE_LCV_VARIABLE	false	// To utilize low cost and zero variables
 //------------------------------------------------------------------/**/
 
 /**#define PP_PROBLEM_NAME		"simple2" //==========================================
@@ -275,8 +275,8 @@ This source code has been produced with using BSF-skeleton
 #define PP_GAP						1E-2	// Maximum gap from polytope surface (not too small!!!)
 #define PP_OBJECTIVE_VECTOR_LENGTH	0.1		// Length of Objective Vector
 #define PP_START_SHIFT_LENGTH		5		// Start length of shift vector
-#define PP_MODE_BLOCK_HCV_VARIABLE	true	// block high cost variables
-#define PP_MODE_USE_LCV_VARIABLE	false	// utilize low cost and zero variables
+#define PP_MODE_BLOCK_HCV_VARIABLE	true	// To block high cost variables
+#define PP_MODE_USE_LCV_VARIABLE	false	// To utilize low cost and zero variables
 //------------------------------------------------------------------/**/
 
 /**#define PP_PROBLEM_NAME		"simple3" //==========================================
@@ -296,8 +296,8 @@ This source code has been produced with using BSF-skeleton
 #define PP_GAP						1E-2	// Maximum gap from polytope surface (not too small!!!)
 #define PP_OBJECTIVE_VECTOR_LENGTH	0.1		// Length of Objective Vector
 #define PP_START_SHIFT_LENGTH		5		// Start length of shift vector
-#define PP_MODE_BLOCK_HCV_VARIABLE	true	// block high cost variables
-#define PP_MODE_USE_LCV_VARIABLE	false	// utilize low cost and zero variables
+#define PP_MODE_BLOCK_HCV_VARIABLE	true	// To block high cost variables
+#define PP_MODE_USE_LCV_VARIABLE	false	// To utilize low cost and zero variables
 //------------------------------------------------------------------/**/
 
 /**#define PP_PROBLEM_NAME		"simple1min" //==========================================
@@ -317,8 +317,8 @@ This source code has been produced with using BSF-skeleton
 #define PP_GAP						1E-2	// Maximum gap from polytope surface (not too small!!!)
 #define PP_OBJECTIVE_VECTOR_LENGTH	0.1		// Length of Objective Vector
 #define PP_START_SHIFT_LENGTH		5		// Start length of shift vector
-#define PP_MODE_BLOCK_HCV_VARIABLE	true	// block high cost variables
-#define PP_MODE_USE_LCV_VARIABLE	false	// utilize low cost and zero variables
+#define PP_MODE_BLOCK_HCV_VARIABLE	true	// To block high cost variables
+#define PP_MODE_USE_LCV_VARIABLE	false	// To utilize low cost and zero variables
 //------------------------------------------------------------------/**/
 
 /**#define PP_PROBLEM_NAME		"simple_zcv" //==========================================
@@ -338,8 +338,8 @@ This source code has been produced with using BSF-skeleton
 #define PP_GAP						1E-2	// Maximum gap from polytope surface (not too small!!!)
 #define PP_OBJECTIVE_VECTOR_LENGTH	1		// Length of Objective Vector
 #define PP_START_SHIFT_LENGTH		5		// Start length of shift vector
-#define PP_MODE_BLOCK_HCV_VARIABLE	false	// block high cost variables
-#define PP_MODE_USE_LCV_VARIABLE	true	// utilize low cost and zero variables
+#define PP_MODE_BLOCK_HCV_VARIABLE	false	// To block high cost variables
+#define PP_MODE_USE_LCV_VARIABLE	true	// To utilize low cost and zero variables
 //------------------------------------------------------------------/**/
 
 /**#define PP_PROBLEM_NAME		"simple_lcv" //==========================================
@@ -359,8 +359,8 @@ This source code has been produced with using BSF-skeleton
 #define PP_GAP						1E-2	// Maximum gap from polytope surface (not too small!!!)
 #define PP_OBJECTIVE_VECTOR_LENGTH	0.1		// Length of Objective Vector
 #define PP_START_SHIFT_LENGTH		5		// Start length of shift vector
-#define PP_MODE_BLOCK_HCV_VARIABLE	true	// block high cost variables
-#define PP_MODE_USE_LCV_VARIABLE	false	// utilize low cost and zero variables
+#define PP_MODE_BLOCK_HCV_VARIABLE	true	// To block high cost variables
+#define PP_MODE_USE_LCV_VARIABLE	false	// To utilize low cost and zero variables
 //------------------------------------------------------------------/**/
 
 /**#define PP_PROBLEM_NAME		"simple_lcv_neg" //==========================================
@@ -380,8 +380,8 @@ This source code has been produced with using BSF-skeleton
 #define PP_GAP						1E-2	// Maximum gap from polytope surface (not too small!!!)
 #define PP_OBJECTIVE_VECTOR_LENGTH	0.1		// Length of Objective Vector
 #define PP_START_SHIFT_LENGTH		5		// Start length of shift vector
-#define PP_MODE_BLOCK_HCV_VARIABLE	true	// block high cost variables
-#define PP_MODE_USE_LCV_VARIABLE	false	// utilize low cost and zero variables
+#define PP_MODE_BLOCK_HCV_VARIABLE	true	// To block high cost variables
+#define PP_MODE_USE_LCV_VARIABLE	false	// To utilize low cost and zero variables
 //------------------------------------------------------------------/**/
 
 /**#define PP_PROBLEM_NAME		"dataset" //==========================================
@@ -401,8 +401,8 @@ This source code has been produced with using BSF-skeleton
 #define PP_GAP						1E-2	// Maximum gap from polytope surface (not too small!!!)
 #define PP_OBJECTIVE_VECTOR_LENGTH	0.1		// Length of Objective Vector
 #define PP_START_SHIFT_LENGTH		5		// Start length of shift vector
-#define PP_MODE_BLOCK_HCV_VARIABLE	true	// block high cost variables
-#define PP_MODE_USE_LCV_VARIABLE	false	// utilize low cost and zero variables
+#define PP_MODE_BLOCK_HCV_VARIABLE	true	// To block high cost variables
+#define PP_MODE_USE_LCV_VARIABLE	false	// To utilize low cost and zero variables
 //------------------------------------------------------------------/**/
 
 /**#define PP_PROBLEM_NAME		"dataset2" //==========================================
@@ -422,8 +422,8 @@ This source code has been produced with using BSF-skeleton
 #define PP_GAP						1E-1	// Maximum gap from polytope surface (not too small!!!)
 #define PP_OBJECTIVE_VECTOR_LENGTH	1		// Length of Objective Vector
 #define PP_START_SHIFT_LENGTH		5		// Start length of shift vector
-#define PP_MODE_BLOCK_HCV_VARIABLE	true	// block high cost variables
-#define PP_MODE_USE_LCV_VARIABLE	false	// utilize low cost and zero variables
+#define PP_MODE_BLOCK_HCV_VARIABLE	true	// To block high cost variables
+#define PP_MODE_USE_LCV_VARIABLE	false	// To utilize low cost and zero variables
 //------------------------------------------------------------------/**/
 //================================ Common Paramrters ===========================
 #define PP_MM (PP_MODE_BLOCK_HCV_VARIABLE ? 2*PP_M+3*PP_N-1 : 2*PP_M+2*PP_N)

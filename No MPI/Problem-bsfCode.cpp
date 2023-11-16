@@ -1,7 +1,7 @@
 /*==============================================================================
 Project: LiFe
 Theme: Apex Method (No MPI)
-Module: Problem-bsfCode.cpp (Implementation of the Problem)
+Module: Problem-bsfCode.cpp (Implementation of Problem Code)
 Prefix: PC
 Author: Leonid B. Sokolinsky
 This source code has been produced with using BSF-skeleton
@@ -28,13 +28,11 @@ void PC_bsf_Init(bool* success) {
 	PD_state = PP_STATE_START;
 	//
 
-/*debug5*
 	if (PP_MODE_BLOCK_HCV_VARIABLE && PP_MODE_USE_LCV_VARIABLE) {
 		cout << "Modes PP_MODE_BLOCK_HCV_VARIABLE & PP_MODE_USE_LCV_VARIABLE are incompatible!\n";
 		*success = false;
 		return;
 	}
-/*end debug*/
 
 	*success = LoadMatrixFormat();
 	if (*success == false)
@@ -66,6 +64,20 @@ void PC_bsf_Init(bool* success) {
 
 	MakeObjVector(PD_c, PD_objVector);
 	UnitObjVector(PD_e_c);
+
+	/*debug*
+	cout << "A = " << endl;
+	for (int i = 0; i < PD_m; i++) {
+		cout << i << ") ";
+		for (int j = 0; j < PD_n; j++)
+			cout << PD_A[i][j] << " ";
+		cout << endl;
+	}
+	cout << "c = ";
+	for (int i = 0; i < PD_n; i++)
+		cout << PD_c[i] << " ";
+	cout << endl;
+	/*end debug*/
 }
 
 void PC_bsf_SetListSize(int* listSize) {
@@ -1364,6 +1376,7 @@ static bool LoadMatrixFormat() {
 
 	SortObjVarI();
 
+
 	//--------------- Reading x0 ------------------
 	PD_MTX_File_x0 = PP_PATH;
 	PD_MTX_File_x0 += PP_MTX_PREFIX;
@@ -1869,7 +1882,7 @@ inline void ApexPoint(PT_vector_T innerPont, PT_vector_T apexPoint) {
 	PT_vector_T e_c_stripped;
 
 	for (int j = 0; j < PD_n; j++)
-		if (fabs(PD_e_c[PD_objI[j]]) / fabs(PD_e_c[PD_objI[0]]) > PP_LOW_COST_PERCENTILE)
+		if (fabs(PD_e_c[PD_objI[j]]) / fabs(PD_e_c[PD_objI[0]]) > PP_LOW_COST_PERCENTILE + PP_EPS_ZERO_COMPARE)
 			e_c_stripped[PD_objI[j]] = PD_e_c[PD_objI[j]];
 		else
 			e_c_stripped[PD_objI[j]] = 0;

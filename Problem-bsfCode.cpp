@@ -1,7 +1,7 @@
 /*==============================================================================
 Project: LiFe
 Theme: Apex Method
-Module: Problem-bsfCode.cpp (Implementation of the Problem)
+Module: Problem-bsfCode.cpp (Implementation of Problem Code)
 Prefix: PC
 Author: Leonid B. Sokolinsky
 This source code has been produced with using BSF-skeleton
@@ -27,14 +27,12 @@ void PC_bsf_SetInitParameter(PT_bsf_parameter_T* parameter) {
 void PC_bsf_Init(bool* success) {
 	PD_state = PP_STATE_START;
 	PD_problemName = PP_PROBLEM_NAME;
-
-/*debug5*	
+	
 	if (PP_MODE_BLOCK_HCV_VARIABLE && PP_MODE_USE_LCV_VARIABLE) {
 		cout << "Modes PP_MODE_BLOCK_HCV_VARIABLE & PP_MODE_USE_LCV_VARIABLE are incompatible!\n";
 		*success = false;
 		return;
 	}
-/*end debug*/
 
 	*success = LoadMatrixFormat();
 	if (*success == false)
@@ -1657,7 +1655,7 @@ inline void ShrinkUnitVector(PT_vector_T objUnitVector, int shrinkBound) { // Sh
 	Vector_DivideEquals(objUnitVector, norm);
 }
 
-inline void MakeObjVector(PT_vector_T c, PT_vector_T objVector) { // Calculating Objective Vector
+inline void MakeObjVector(PT_vector_T c, PT_vector_T objVector) { // Calculating Objective Vector with length of PP_OBJECTIVE_VECTOR_LENGTH
 	double c_norm = Vector_Norm(c);
 	Vector_MultiplyByNumber(c, PP_OBJECTIVE_VECTOR_LENGTH / c_norm, objVector);
 }
@@ -1869,7 +1867,7 @@ inline void ApexPoint(PT_vector_T innerPont, PT_vector_T apexPoint) {
 	PT_vector_T e_c_stripped;
 
 	for (int j = 0; j < PD_n; j++)
-		if (fabs(PD_e_c[PD_objI[j]]) / fabs(PD_e_c[PD_objI[0]]) > PP_LOW_COST_PERCENTILE)
+		if (fabs(PD_e_c[PD_objI[j]]) / fabs(PD_e_c[PD_objI[0]]) > PP_LOW_COST_PERCENTILE + PP_EPS_ZERO_COMPARE)
 			e_c_stripped[PD_objI[j]] = PD_e_c[PD_objI[j]];
 		else
 			e_c_stripped[PD_objI[j]] = 0;
