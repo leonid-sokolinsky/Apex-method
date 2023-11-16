@@ -64,20 +64,6 @@ void PC_bsf_Init(bool* success) {
 
 	MakeObjVector(PD_c, PD_objVector);
 	UnitObjVector(PD_e_c);
-
-	/*debug*
-	cout << "A = " << endl;
-	for (int i = 0; i < PD_m; i++) {
-		cout << i << ") ";
-		for (int j = 0; j < PD_n; j++)
-			cout << PD_A[i][j] << " ";
-		cout << endl;
-	}
-	cout << "c = ";
-	for (int i = 0; i < PD_n; i++)
-		cout << PD_c[i] << " ";
-	cout << endl;
-	/*end debug*/
 }
 
 void PC_bsf_SetListSize(int* listSize) {
@@ -304,7 +290,7 @@ void PC_bsf_JobDispatcher(
 			return;
 		}
 
-		/*debug2*
+		/*debug2**
 		SavePoint(parameter->x, x0_File, t);
 		cout << "==================> F(t) = " << setw(PP_SETW) << ObjF(parameter->x) << endl;
 		*exit = true;
@@ -319,13 +305,13 @@ void PC_bsf_JobDispatcher(
 		if (PP_OUTPUT_LIMIT < PD_n) cout << " ...";
 		cout << "\tF(t) = " << setw(PP_SETW) << ObjF(parameter->x) << endl;
 #endif
+		Vector_Copy(parameter->x, PD_u);
+		PD_objF_u = ObjF(PD_u);
+
 		/*debug3**
 		*exit = true;
 		return;
 		/*end debug*/
-
-		Vector_Copy(parameter->x, PD_u);
-		PD_objF_u = ObjF(PD_u);
 
 		// Preparations for determining direction
 		Vector_PlusEquals(parameter->x, PD_objVector);
@@ -718,7 +704,7 @@ void PC_bsf_JobDispatcher(
 		Vector_Copy(parameter->x, PD_u);
 		PD_objF_u = ObjF(PD_u);
 
-		WriteTrace(PD_u);
+		//WriteTrace(PD_u);
 
 		/*debug8*/
 		if (fabs(PD_objF_u - PP_EXACT_OBJ_VALUE) <= PP_EPS_OBJ) {
@@ -1375,7 +1361,6 @@ static bool LoadMatrixFormat() {
 	if (error) return false;
 
 	SortObjVarI();
-
 
 	//--------------- Reading x0 ------------------
 	PD_MTX_File_x0 = PP_PATH;
