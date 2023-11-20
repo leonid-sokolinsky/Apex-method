@@ -1,6 +1,6 @@
 /*==============================================================================
 Project: LiFe
-Theme: Apex Method (No MPI)
+Theme:  Theme: Apex Method (No MPI)
 Module: Problem-Include.h ("Includ" Files of the Problem)
 Author: Leonid B. Sokolinsky
 This source code has been produced with using BSF-skeleton

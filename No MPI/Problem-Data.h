@@ -1,6 +1,6 @@
 /*==============================================================================
 Project: LiFe
-Theme: Apex Method (No MPI)
+Theme:  Theme: Apex Method (No MPI)
 Module: Problem-Data.h (Problem Data)
 Prefix: PP
 Author: Leonid B. Sokolinsky
@@ -19,7 +19,6 @@ static int		PD_state;					// State of Job Dispatcher (see PC_bsf_JobDispatcher)
 static int		PD_indexToBlock;			// Index of variable to block
 static int		PD_firstZcvI;				// Index of first zero-costs variable
 static int		PD_firstLcvI;				// Index of first low-costs variable
-static double	PD_minCostPercentile;		// Minimum cost percentile
 static double	PD_objF_u;
 static double	PD_objF_w;
 //========================== Problem structures ====================================

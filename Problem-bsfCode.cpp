@@ -55,7 +55,6 @@ void PC_bsf_Init(bool* success) {
 			for (int j2 = j1; j2 < PD_n; j2++)
 				if (PD_c[PD_objI[j2]] == 0) {
 					PD_firstZcvI = j2;
-					PD_minCostPercentile = fabs(PD_c[PD_objI[j2 - 1]]) / fabs(PD_c[PD_objI[0]]);
 					break;
 				}
 			break;

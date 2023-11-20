@@ -1,6 +1,6 @@
 /*==============================================================================
 Project: LiFe
-Theme: Apex Method (No MPI)
+Theme:  Theme: Apex Method (No MPI)
 Module: Problem-bsfParameters.h (BSF-skeleton Parameters)
 Prefix: PP_BSF
 Author: Leonid B. Sokolinsky

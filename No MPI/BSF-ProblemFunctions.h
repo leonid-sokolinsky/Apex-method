@@ -1,6 +1,6 @@
 /*==============================================================================
 Project: LiFe
-Theme: Apex Method (No MPI)
+Theme:  Theme: Apex Method (No MPI)
 Module: BSF-ProblemFunctions.h (Predefined Problem Function Forwards)
 Author: Leonid B. Sokolinsky
 This source code is a part of BSF Skeleton (https://github.com/leonid-sokolinsky/BSF-skeleton)

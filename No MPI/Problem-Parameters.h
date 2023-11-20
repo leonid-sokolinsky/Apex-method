@@ -1,6 +1,6 @@
 /*==============================================================================
 Project: LiFe
-Theme: Apex Method (No MPI)
+Theme:  Theme: Apex Method (No MPI)
 Module: Problem-Parameters.h (Problem Parameters)
 Prefix: PP
 Author: Leonid B. Sokolinsky

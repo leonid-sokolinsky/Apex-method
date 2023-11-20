@@ -1,6 +1,6 @@
 /*==============================================================================
 Project: LiFe
-Theme: Apex Method (No MPI)
+Theme:  Theme: Apex Method (No MPI)
 Module: BSF-Types.h (Problem Independent Types)
 Prefix: BT
 Author: Leonid B. Sokolinsky 
