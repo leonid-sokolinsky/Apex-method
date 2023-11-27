@@ -1622,7 +1622,7 @@ inline void Vector_ProjectOnHalfspace(PT_vector_T point, PT_vector_T a, PT_float
 
 	factor = (b - Vector_DotProduct(point, a)) / aNormSquare;
 
-	if (factor > 0 || fabs(factor) < PP_EPS_ZERO_COMPARE) {
+	if (factor + PP_EPS_ZERO_COMPARE > 0) {
 		*exitCode = PP_EXITCODE_POINT_BELONGS_TO_HALFSPACE;
 		return;
 	}
